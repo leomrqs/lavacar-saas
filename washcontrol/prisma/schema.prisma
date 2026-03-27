@@ -1,0 +1,255 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ─────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  SUPER_ADMIN
+  MANAGER
+  WASHER
+}
+
+enum OrderStatus {
+  PENDING
+  WAITING_QUEUE
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELED
+}
+
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  TRUCK
+  VAN
+  SUV
+}
+
+// ─── MODELS ────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(WASHER)
+  employee  Employee?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Tenant {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  isActive        Boolean   @default(true)
+  saasPlan        String    @default("BASIC") // BASIC | PRO | ENTERPRISE
+  saasPrice       Float     @default(0)
+  saasDueDate     DateTime?
+  billingCycleDay Int       @default(1)
+  monthlyGoal     Float     @default(0)
+  // Programa de fidelidade
+  loyaltyInterval Int       @default(10) // a cada N lavagens, ganhou desconto
+  loyaltyDiscount Float     @default(100) // % de desconto na lavagem grátis
+  // Relações
+  orders          Order[]
+  customers       Customer[]
+  vehicles        Vehicle[]
+  employees       Employee[]
+  products        Product[]
+  appointments    Appointment[]
+  financialTx     FinancialTransaction[]
+  inventoryTx     InventoryTransaction[]
+  fixedExpenses   FixedExpense[]
+  users           User[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  tenantId       String
+  tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  vehicleId      String
+  vehicle        Vehicle     @relation(fields: [vehicleId], references: [id])
+  status         OrderStatus @default(PENDING)
+  // Financeiro
+  total          Float       @default(0)
+  advancePayment Float       @default(0)
+  paymentMethod  String? // PIX | DINHEIRO | CARTAO_CREDITO | CARTAO_DEBITO
+  // Tempo
+  startedAt      DateTime? // quando entra em IN_PROGRESS
+  finishedAt     DateTime? // quando vai para READY
+  completedAt    DateTime? // quando vai para COMPLETED
+  notes          String?
+  items          OrderItem[]
+  appointment    Appointment?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String
+  quantity  Float    @default(1)
+  unitPrice Float
+  isService Boolean  @default(true) // true = mão de obra | false = insumo físico
+}
+
+model Customer {
+  id           String        @id @default(cuid())
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String?
+  email        String?
+  totalWashes  Int           @default(0) // contador fidelidade
+  orders       Order[]
+  vehicles     Vehicle[]
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+
+  @@index([tenantId])
+}
+
+model Vehicle {
+  id           String        @id @default(cuid())
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId   String
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  plate        String
+  brand        String?
+  model        String?
+  color        String?
+  year         Int?
+  type         VehicleType   @default(CAR)
+  orders       Order[]
+  appointments Appointment[]
+
+  @@unique([tenantId, plate])
+  @@index([tenantId])
+}
+
+model Product {
+  id          String                 @id @default(cuid())
+  tenantId    String
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  category    String? // LAVAGEM | POLIMENTO | INSUMO | PRODUTO_REVENDA
+  price       Float                  @default(0)
+  stock       Float                  @default(0)
+  minStock    Float                  @default(0)
+  unit        String                 @default("un")
+  isService   Boolean                @default(false)
+  items       OrderItem[]
+  inventoryTx InventoryTransaction[]
+
+  @@index([tenantId])
+}
+
+model FinancialTransaction {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderId       String?
+  type          String // INCOME | EXPENSE
+  category      String // SERVICO_LAVAGEM | PRODUTO_REVENDA | SALARIO | DESPESA_FIXA | etc.
+  description   String
+  amount        Float
+  status        String    @default("PENDING") // PENDING | PAID
+  paymentMethod String?
+  paymentDate   DateTime?
+  dueDate       DateTime?
+  notes         String? // tags de idempotência
+  createdAt     DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+}
+
+model InventoryTransaction {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  orderId   String?
+  type      String // IN | OUT
+  quantity  Float
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model Appointment {
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  vehicleId  String?
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id])
+  orderId    String?   @unique // idempotência — 1 OS por agendamento
+  order      Order?    @relation(fields: [orderId], references: [id])
+  date       DateTime
+  serviceId  String?
+  notes      String?
+  status     String    @default("SCHEDULED") // SCHEDULED | COMPLETED | CANCELED
+  createdAt  DateTime  @default(now())
+
+  @@index([tenantId])
+}
+
+model Employee {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name          String
+  role          String   @default("WASHER")
+  phone         String?
+  salary        Float    @default(0)
+  commissionPct Float    @default(0) // % comissão por OS concluída
+  isActive      Boolean  @default(true)
+  userId        String?  @unique
+  user          User?    @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model FixedExpense {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Float
+  dueDay    Int // dia do mês para lançamento automático
+  category  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
