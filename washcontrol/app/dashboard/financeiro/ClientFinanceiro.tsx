@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,12 +19,16 @@ import {
   Banknote,
   Calendar,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn, formatBRL } from "@/lib/utils";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { toMonthParam, shiftMonth } from "@/lib/cycle";
 import {
   createTransaction,
   markTransactionPaid,
@@ -75,6 +80,12 @@ interface Props {
   monthlySummary: MonthlySummary[];
   currentMonth: number;
   currentYear: number;
+  cycleDay: number;
+  cycleStart: string;
+  cycleEnd: string;
+  currentMonthParam: string;
+  selectedMonthParam: string;
+  pendingFixedExpenseNames: string[];
 }
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
@@ -476,13 +487,32 @@ export function ClientFinanceiro({
   monthlySummary,
   currentMonth,
   currentYear,
+  cycleDay,
+  cycleStart,
+  cycleEnd,
+  currentMonthParam,
+  selectedMonthParam,
+  pendingFixedExpenseNames,
 }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"fluxo" | "fixas" | "dre">("fluxo");
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showFixedExpenseModal, setShowFixedExpenseModal] = useState(false);
   const [filterType, setFilterType] = useState<"ALL" | "INCOME" | "EXPENSE">("ALL");
   const [filterStatus, setFilterStatus] = useState<"ALL" | "PENDING" | "PAID">("ALL");
   const [isPending, startTransition] = useTransition();
+
+  // Navegação de ciclo
+  const isCurrentCycle = selectedMonthParam === currentMonthParam;
+  const prevParam = (() => { const p = selectedMonthParam.split("-"); const s = shiftMonth(parseInt(p[0]), parseInt(p[1]), -1); return toMonthParam(s.year, s.month); })();
+  const nextParam = (() => { const p = selectedMonthParam.split("-"); const s = shiftMonth(parseInt(p[0]), parseInt(p[1]), 1); return toMonthParam(s.year, s.month); })();
+  const cycleStartDate = new Date(cycleStart);
+  const cycleEndDate = new Date(cycleEnd);
+  const cycleLabel = `${format(cycleStartDate, "dd/MMM", { locale: ptBR })} → ${format(cycleEndDate, "dd/MMM/yy", { locale: ptBR })}`;
+
+  const navigateCycle = (param: string) => {
+    router.push(`/dashboard/financeiro?month=${param}`);
+  };
 
   const filteredTransactions = transactions.filter((t) => {
     if (filterType !== "ALL" && t.type !== filterType) return false;
@@ -567,30 +597,91 @@ export function ClientFinanceiro({
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
-        title="Financeiro"
-        description="Controle de fluxo de caixa e despesas"
-        action={
-          activeTab === "fluxo" ? (
+    <div className="p-6 space-y-5">
+      {/* Header com seletor de ciclo */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-white">Financeiro</h1>
+          <p className="text-sm text-zinc-400 mt-0.5">
+            Ciclo: <span className="text-zinc-300 font-medium">{cycleLabel}</span>
+            {cycleDay !== 1 && (
+              <span className="ml-2 text-xs text-zinc-600">(inicia dia {cycleDay})</span>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Seletor de ciclo */}
+          <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1">
+            <button
+              onClick={() => navigateCycle(prevParam)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              title="Ciclo anterior"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="px-2 text-sm font-medium text-white min-w-[90px] text-center">
+              {format(cycleStartDate, "MMM/yyyy", { locale: ptBR })}
+            </span>
+            <button
+              onClick={() => navigateCycle(nextParam)}
+              disabled={isCurrentCycle}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              title="Próximo ciclo"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          {!isCurrentCycle && (
+            <button
+              onClick={() => navigateCycle(currentMonthParam)}
+              className="px-3 py-1.5 text-xs font-medium text-blue-400 border border-blue-500/30 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition-colors"
+            >
+              Hoje
+            </button>
+          )}
+          {/* Ação contextual */}
+          {activeTab === "fluxo" && (
             <button
               onClick={() => setShowTransactionModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-colors"
             >
               <Plus className="w-4 h-4" />
               Lançamento
             </button>
-          ) : activeTab === "fixas" ? (
+          )}
+          {activeTab === "fixas" && (
             <button
               onClick={() => setShowFixedExpenseModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Nova Despesa Fixa
+              Nova Fixa
             </button>
-          ) : undefined
-        }
-      />
+          )}
+        </div>
+      </div>
+
+      {/* Alerta: despesas fixas não lançadas */}
+      {pendingFixedExpenseNames.length > 0 && (
+        <div className="flex items-start gap-3 p-4 bg-yellow-500/8 border border-yellow-500/25 rounded-xl">
+          <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-yellow-300">
+              {pendingFixedExpenseNames.length} despesa{pendingFixedExpenseNames.length > 1 ? "s fixas" : " fixa"} não lançada{pendingFixedExpenseNames.length > 1 ? "s" : ""} neste ciclo
+            </p>
+            <p className="text-xs text-yellow-400/70 mt-1">
+              {pendingFixedExpenseNames.slice(0, 4).join(", ")}
+              {pendingFixedExpenseNames.length > 4 && ` e mais ${pendingFixedExpenseNames.length - 4}...`}
+            </p>
+            <button
+              onClick={() => setActiveTab("fixas")}
+              className="text-xs text-yellow-400 hover:text-yellow-300 mt-1.5 underline underline-offset-2"
+            >
+              Ver despesas fixas →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -619,7 +710,7 @@ export function ClientFinanceiro({
 
       {/* Sparkline — últimos 6 meses */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-        <p className="text-sm font-medium text-zinc-300 mb-4">Faturamento — Últimos 6 meses</p>
+        <p className="text-sm font-medium text-zinc-300 mb-4">Faturamento — Últimos 6 ciclos</p>
         <div className="flex items-end gap-2 h-20">
           {monthlySummary.map((m) => {
             const maxVal = Math.max(...monthlySummary.map((s) => s.total), 1);
@@ -899,7 +990,7 @@ export function ClientFinanceiro({
         {activeTab === "dre" && (
           <div className="p-4">
             <p className="text-xs text-zinc-500 mb-4">
-              Demonstrativo de Resultado — mês atual (apenas lançamentos pagos)
+              Demonstrativo de Resultado — {cycleLabel} · apenas lançamentos pagos
             </p>
             <div className="space-y-1">
               {/* Receita Bruta */}
@@ -991,7 +1082,7 @@ export function ClientFinanceiro({
             {/* Monthly comparison */}
             <div className="mt-6">
               <p className="text-xs font-medium text-zinc-400 mb-3">
-                Evolução mensal — Receita
+                Evolução por ciclo — Receita
               </p>
               <div className="space-y-2">
                 {monthlySummary.map((m) => {

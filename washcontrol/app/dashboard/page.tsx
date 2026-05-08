@@ -4,9 +4,20 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ClientDashboard } from "./ClientDashboard";
 import { ClientDashboardSuperAdmin } from "./ClientDashboardSuperAdmin";
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, subDays } from "date-fns";
+import { subDays } from "date-fns";
+import {
+  getCycleDates,
+  getCurrentCycleMonth,
+  parseMonthParam,
+  toMonthParam,
+  shiftMonth,
+} from "@/lib/cycle";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
@@ -55,33 +66,47 @@ export default async function DashboardPage() {
   if (!session.user.tenantId) redirect("/login");
   const tenantId = session.user.tenantId;
 
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: { monthlyGoal: true, name: true, billingCycleDay: true },
+  });
+
+  const cycleDay = tenant?.billingCycleDay ?? 1;
   const today = new Date();
-  const todayStart = startOfDay(today);
-  const todayEnd = endOfDay(today);
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(today);
+
+  // Ciclo atual baseado no cycleDay
+  const currentCycle = getCurrentCycleMonth(today, cycleDay);
+
+  // Lê ?month= da URL
+  const params = await searchParams;
+  const selected = parseMonthParam(params.month, currentCycle.year, currentCycle.month);
+  const { cycleStart, cycleEnd, year, month } = getCycleDates(
+    selected.year,
+    selected.month,
+    cycleDay
+  );
+
+  // Últimos 7 dias (sempre do dia atual para lavagens recentes)
+  const sevenDaysAgo = subDays(today, 6);
 
   const [
-    tenant,
     ordersToday,
     ordersActive,
+    faturamentoCiclo,
     faturamentoHoje,
-    faturamentoMes,
     ordersWeek,
     ordersMonth,
   ] = await Promise.all([
-    prisma.tenant.findUnique({
-      where: { id: tenantId },
-      select: { monthlyGoal: true, name: true },
-    }),
+    // Lavagens completadas no ciclo selecionado (para KPIs do ciclo)
     prisma.order.findMany({
       where: {
         tenantId,
         status: "COMPLETED",
-        completedAt: { gte: todayStart, lte: todayEnd },
+        completedAt: { gte: cycleStart, lte: cycleEnd },
       },
       select: { id: true, total: true, startedAt: true, finishedAt: true },
     }),
+    // OS ativas agora
     prisma.order.findMany({
       where: {
         tenantId,
@@ -89,21 +114,23 @@ export default async function DashboardPage() {
       },
       select: { id: true, status: true },
     }),
+    // Faturamento do ciclo selecionado
     prisma.financialTransaction.aggregate({
       where: {
         tenantId,
         type: "INCOME",
         status: "PAID",
-        paymentDate: { gte: todayStart, lte: todayEnd },
+        paymentDate: { gte: cycleStart, lte: cycleEnd },
       },
       _sum: { amount: true },
     }),
+    // Faturamento de hoje (sempre)
     prisma.financialTransaction.aggregate({
       where: {
         tenantId,
         type: "INCOME",
         status: "PAID",
-        paymentDate: { gte: monthStart, lte: monthEnd },
+        paymentDate: { gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()), lte: today },
       },
       _sum: { amount: true },
     }),
@@ -113,18 +140,18 @@ export default async function DashboardPage() {
       where: {
         tenantId,
         status: "COMPLETED",
-        completedAt: { gte: subDays(today, 6) },
+        completedAt: { gte: sevenDaysAgo },
       },
       _count: { id: true },
     }),
-    // Lavagens por categoria no mês
+    // Serviços mais realizados no ciclo
     prisma.orderItem.groupBy({
       by: ["name"],
       where: {
         order: {
           tenantId,
           status: "COMPLETED",
-          completedAt: { gte: monthStart, lte: monthEnd },
+          completedAt: { gte: cycleStart, lte: cycleEnd },
         },
         isService: true,
       },
@@ -134,30 +161,27 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  // Calcular tempo médio de lavagem do dia
+  // Tempo médio das lavagens do ciclo
   const tempoMedio = (() => {
     const valid = ordersToday.filter((o) => o.startedAt && o.finishedAt);
     if (!valid.length) return 0;
     const totalMs = valid.reduce(
-      (acc, o) =>
-        acc + (o.finishedAt!.getTime() - o.startedAt!.getTime()),
+      (acc, o) => acc + (o.finishedAt!.getTime() - o.startedAt!.getTime()),
       0
     );
-    return Math.round(totalMs / valid.length / 60000); // minutos
+    return Math.round(totalMs / valid.length / 60000);
   })();
 
+  const faturamentoCicloVal = faturamentoCiclo._sum.amount ?? 0;
   const faturamentoHojeVal = faturamentoHoje._sum.amount ?? 0;
-  const faturamentoMesVal = faturamentoMes._sum.amount ?? 0;
   const ticketMedio =
-    ordersToday.length > 0
-      ? faturamentoHojeVal / ordersToday.length
-      : 0;
+    ordersToday.length > 0 ? faturamentoCicloVal / ordersToday.length : 0;
 
   return (
     <ClientDashboard
       lavagensHoje={ordersToday.length}
       faturamentoHoje={faturamentoHojeVal}
-      faturamentoMes={faturamentoMesVal}
+      faturamentoMes={faturamentoCicloVal}
       ticketMedio={ticketMedio}
       tempoMedio={tempoMedio}
       ordersAtivas={ordersActive.length}
@@ -170,6 +194,11 @@ export default async function DashboardPage() {
         name: g.name,
         value: g._count.id,
       }))}
+      cycleDay={cycleDay}
+      cycleStart={cycleStart.toISOString()}
+      cycleEnd={cycleEnd.toISOString()}
+      selectedMonthParam={toMonthParam(selected.year, selected.month)}
+      currentMonthParam={toMonthParam(currentCycle.year, currentCycle.month)}
     />
   );
 }

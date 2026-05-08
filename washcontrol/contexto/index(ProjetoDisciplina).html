@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WashControl — Análise e Projeto de Sistema Computacional</title>
+  <style>
+    /* ═══════════════════════════════════════════
+       ABNT NBR 14724 — Configuração Geral
+       Margens: E=3cm D=2cm S=3cm I=2cm
+    ═══════════════════════════════════════════ */
+    @page {
+      size: A4;
+      margin: 3cm 2cm 2cm 3cm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Arial", "Helvetica Neue", sans-serif;
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #000;
+      background: #fff;
+    }
+
+    /* ─── Quebras de página ───────────────── */
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+    }
+    .no-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* ─── Capa ────────────────────────────── */
+    .capa {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0;
+    }
+
+    .capa-instituicao {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      line-height: 1.4;
+      margin-bottom: 0.5cm;
+    }
+
+    .capa-logo {
+      margin: 1cm 0;
+    }
+
+    .capa-logo-box {
+      width: 90px;
+      height: 90px;
+      border: 3px solid #1a5fa8;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10pt;
+      font-weight: bold;
+      color: #1a5fa8;
+      letter-spacing: 1px;
+    }
+
+    .capa-autor {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 3cm;
+    }
+
+    .capa-titulo {
+      font-size: 14pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 0.5cm;
+    }
+
+    .capa-subtitulo {
+      font-size: 12pt;
+      margin-bottom: 3cm;
+    }
+
+    .capa-rodape {
+      margin-top: auto;
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* ─── Folha de Rosto ──────────────────── */
+    .rosto {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .rosto-autor {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 5cm;
+    }
+
+    .rosto-titulo {
+      font-size: 14pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 0.5cm;
+    }
+
+    .rosto-subtitulo {
+      font-size: 12pt;
+      margin-bottom: 2cm;
+    }
+
+    .rosto-nota {
+      width: 8cm;
+      text-align: left;
+      font-size: 11pt;
+      line-height: 1.4;
+      margin-left: 8cm;
+      margin-bottom: 0.5cm;
+      border-left: 3px solid #ccc;
+      padding-left: 0.5cm;
+    }
+
+    .rosto-rodape {
+      margin-top: auto;
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* ─── Sumário ─────────────────────────── */
+    .sumario h2 {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 1cm;
+    }
+
+    .sumario-item {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 0.2cm;
+      font-size: 12pt;
+    }
+
+    .sumario-item.nivel2 {
+      padding-left: 0.8cm;
+      font-size: 11pt;
+    }
+
+    .sumario-item.nivel3 {
+      padding-left: 1.6cm;
+      font-size: 11pt;
+    }
+
+    .sumario-num {
+      min-width: 1.2cm;
+      font-weight: bold;
+    }
+
+    .sumario-item.nivel2 .sumario-num {
+      min-width: 1.5cm;
+      font-weight: normal;
+    }
+
+    .sumario-texto {
+      flex: 1;
+    }
+
+    .sumario-dots {
+      flex: 1;
+      border-bottom: 1px dotted #000;
+      margin: 0 0.3cm 0.15cm;
+      min-width: 1cm;
+    }
+
+    .sumario-pagina {
+      min-width: 0.8cm;
+      text-align: right;
+    }
+
+    /* ─── Conteúdo ────────────────────────── */
+    .conteudo {
+      padding: 0;
+    }
+
+    /* ─── Títulos ABNT ────────────────────── */
+    h1.secao {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 1cm;
+      margin-bottom: 0.5cm;
+    }
+
+    h2.subsecao {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 0.8cm;
+      margin-bottom: 0.4cm;
+    }
+
+    h3.subsubsecao {
+      font-size: 12pt;
+      font-weight: bold;
+      font-style: italic;
+      margin-top: 0.6cm;
+      margin-bottom: 0.3cm;
+    }
+
+    h4.paragrafo-titulo {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 0.4cm;
+      margin-bottom: 0.2cm;
+    }
+
+    /* ─── Parágrafos ──────────────────────── */
+    p {
+      text-indent: 1.25cm;
+      text-align: justify;
+      margin-bottom: 0.3cm;
+      font-size: 12pt;
+      line-height: 1.5;
+    }
+
+    p.sem-recuo {
+      text-indent: 0;
+    }
+
+    /* ─── Listas ──────────────────────────── */
+    ul, ol {
+      margin-left: 1.75cm;
+      margin-bottom: 0.4cm;
+    }
+
+    li {
+      font-size: 12pt;
+      line-height: 1.5;
+      margin-bottom: 0.15cm;
+      text-align: justify;
+    }
+
+    /* ─── Tabelas ─────────────────────────── */
+    .tabela-container {
+      margin: 0.5cm 0;
+    }
+
+    .tabela-titulo {
+      font-size: 11pt;
+      font-weight: bold;
+      text-align: left;
+      margin-bottom: 0.2cm;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5pt;
+      line-height: 1.4;
+    }
+
+    th {
+      background-color: #1a5fa8;
+      color: #fff;
+      padding: 0.25cm 0.3cm;
+      text-align: left;
+      font-weight: bold;
+      border: 1px solid #1a5fa8;
+    }
+
+    td {
+      padding: 0.2cm 0.3cm;
+      border: 1px solid #ccc;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f5f8ff;
+    }
+
+    .tabela-fonte {
+      font-size: 10pt;
+      margin-top: 0.2cm;
+      color: #444;
+    }
+
+    /* ─── Blocos de diagrama ──────────────── */
+    .diagrama-container {
+      margin: 0.5cm 0;
+      page-break-inside: avoid;
+    }
+
+    .diagrama-titulo {
+      font-size: 11pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 0.3cm;
+    }
+
+    .diagrama-box {
+      border: 1px solid #1a5fa8;
+      border-radius: 4px;
+      background: #f8fbff;
+      padding: 0.4cm 0.5cm;
+    }
+
+    .diagrama-box pre {
+      font-family: "Courier New", monospace;
+      font-size: 8.5pt;
+      line-height: 1.35;
+      white-space: pre;
+      overflow: visible;
+      color: #1a1a2e;
+    }
+
+    .diagrama-nota {
+      font-size: 9.5pt;
+      color: #666;
+      margin-top: 0.2cm;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ─── Especificação de Caso de Uso ──── */
+    .cdu-box {
+      border: 1px solid #333;
+      margin: 0.5cm 0;
+      page-break-inside: avoid;
+    }
+
+    .cdu-header {
+      background: #1a5fa8;
+      color: #fff;
+      padding: 0.2cm 0.4cm;
+      font-size: 11pt;
+      font-weight: bold;
+    }
+
+    .cdu-row {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .cdu-row:last-child {
+      border-bottom: none;
+    }
+
+    .cdu-label {
+      background: #e8f0fb;
+      font-weight: bold;
+      font-size: 10.5pt;
+      padding: 0.2cm 0.4cm;
+      min-width: 4cm;
+      max-width: 4cm;
+      border-right: 1px solid #ddd;
+      vertical-align: top;
+    }
+
+    .cdu-value {
+      font-size: 10.5pt;
+      padding: 0.2cm 0.4cm;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .cdu-value p {
+      text-indent: 0;
+      margin-bottom: 0.15cm;
+    }
+
+    .cdu-value ul {
+      margin-left: 1cm;
+      margin-bottom: 0;
+    }
+
+    /* ─── Fluxo de eventos ───────────────── */
+    .fluxo-titulo {
+      font-size: 10.5pt;
+      font-weight: bold;
+      margin: 0.2cm 0 0.1cm;
+      text-decoration: underline;
+    }
+
+    .fluxo-passo {
+      font-size: 10.5pt;
+      line-height: 1.4;
+      margin-left: 0.5cm;
+      margin-bottom: 0.1cm;
+    }
+
+    /* ─── Regras de negócio ──────────────── */
+    .rn-box {
+      background: #fff8e1;
+      border-left: 4px solid #f5a623;
+      padding: 0.3cm 0.4cm;
+      margin: 0.3cm 0;
+      font-size: 10.5pt;
+    }
+
+    /* ─── Badges ─────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 0.05cm 0.25cm;
+      border-radius: 3px;
+      font-size: 9.5pt;
+      font-weight: bold;
+    }
+
+    .badge-rf   { background: #d4edda; color: #155724; }
+    .badge-rnf  { background: #d1ecf1; color: #0c5460; }
+    .badge-mgr  { background: #fff3cd; color: #856404; }
+    .badge-wsh  { background: #f8d7da; color: #721c24; }
+    .badge-adm  { background: #e2d9f3; color: #432874; }
+    .badge-cli  { background: #d6eaf8; color: #154360; }
+
+    /* ─── Criatividade ───────────────────── */
+    .criatividade-item {
+      background: #f0f7ff;
+      border-left: 4px solid #1a5fa8;
+      padding: 0.25cm 0.4cm;
+      margin-bottom: 0.3cm;
+      font-size: 11pt;
+    }
+
+    .criatividade-item strong {
+      display: block;
+      margin-bottom: 0.1cm;
+      color: #1a5fa8;
+    }
+
+    /* ─── Rodapé de impressão ────────────── */
+    @media print {
+      body { font-size: 12pt; }
+      .no-print { display: none; }
+      a { color: #000; text-decoration: none; }
+
+      @page { margin: 3cm 2cm 2cm 3cm; }
+
+      .diagrama-box pre {
+        font-size: 7.5pt;
+      }
+    }
+
+    /* ─── Nota de instrução (não imprime) ── */
+    .instrucao {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 0.4cm;
+      border-radius: 4px;
+      margin-bottom: 0.5cm;
+      font-size: 11pt;
+    }
+
+    hr.secao-line {
+      border: none;
+      border-top: 2px solid #1a5fa8;
+      margin: 0.6cm 0;
+    }
+
+    /* ─── Assinatura ─────────────────────── */
+    .assinatura-linha {
+      border-bottom: 1px solid #000;
+      width: 10cm;
+      margin: 1cm auto 0.2cm;
+    }
+
+    .assinatura-nome {
+      text-align: center;
+      font-size: 11pt;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     INSTRUÇÃO (não imprime)
+════════════════════════════════════════ -->
+<div class="instrucao no-print">
+  <strong>📄 Como gerar o PDF:</strong> Pressione <strong>Ctrl + P</strong> (ou Cmd+P no Mac) →
+  selecione <strong>"Salvar como PDF"</strong> → Margens: <em>Padrão</em> →
+  ative <strong>"Gráficos de segundo plano"</strong> → Salvar.<br>
+  <em>Os blocos de diagrama exibem o código PlantUML. Para inserir as imagens renderizadas, acesse
+  <strong>planttext.com</strong>, cole o código e exporte como PNG para substituir cada bloco.</em>
+</div>
+
+<!-- ════════════════════════════════════════
+     CAPA
+════════════════════════════════════════ -->
+<div class="capa page-break">
+  <div class="capa-instituicao">
+    Pontifícia Universidade Católica do Paraná — PUCPR<br>
+    Escola Politécnica<br>
+    Curso de Bacharelado em Ciência da Computação
+  </div>
+
+  <div class="capa-logo">
+    <div class="capa-logo-box">WASH<br>CTRL</div>
+  </div>
+
+  <div class="capa-autor">
+    Leonardo dos Santos Marques
+  </div>
+
+  <div class="capa-titulo">WashControl</div>
+  <div class="capa-subtitulo">
+    Sistema SaaS de Gestão para Lava-Cars e Estéticas Automotivas<br>
+    <em>Análise e Projeto de Sistema Computacional</em>
+  </div>
+
+  <div class="capa-rodape">
+    Curitiba<br>
+    2026
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     FOLHA DE ROSTO
+════════════════════════════════════════ -->
+<div class="rosto page-break">
+  <div class="rosto-autor">Leonardo dos Santos Marques</div>
+
+  <div class="rosto-titulo">WashControl</div>
+  <div class="rosto-subtitulo">
+    Sistema SaaS de Gestão para Lava-Cars e Estéticas Automotivas<br>
+    <em>Análise e Projeto de Sistema Computacional</em>
+  </div>
+
+  <div class="rosto-nota">
+    Projeto de análise e especificação de sistema computacional elaborado como
+    artefato avaliativo da disciplina de <strong>Modelagem de Sistemas Computacionais</strong>
+    do Curso de Bacharelado em Ciência da Computação da PUCPR.<br><br>
+    <strong>Professora:</strong> Patricia Rucker de Bassi<br>
+    <strong>Disciplina:</strong> Modelagem de Sistemas Computacionais<br>
+    <strong>Semestre:</strong> 2026-1
+  </div>
+
+  <div class="rosto-rodape">
+    Curitiba<br>
+    2026
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SUMÁRIO
+════════════════════════════════════════ -->
+<div class="sumario page-break">
+  <h2>SUMÁRIO</h2>
+
+  <div class="sumario-item">
+    <span class="sumario-num">1</span>
+    <span class="sumario-texto">INTRODUÇÃO</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">5</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">1.1</span>
+    <span class="sumario-texto">Contexto de Negócio</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">5</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">1.2</span>
+    <span class="sumario-texto">Justificativa do Projeto</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">5</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">1.3</span>
+    <span class="sumario-texto">Benefícios</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">5</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">2</span>
+    <span class="sumario-texto">REQUISITOS</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">6</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">2.1</span>
+    <span class="sumario-texto">Requisitos Funcionais</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">6</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">2.2</span>
+    <span class="sumario-texto">Requisitos Não Funcionais (FURPS+)</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">7</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">3</span>
+    <span class="sumario-texto">RA1 — MODELO DE DOMÍNIO E CASOS DE USO</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">8</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">3.1</span>
+    <span class="sumario-texto">Diagrama de Caso de Uso</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">8</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">3.3</span>
+    <span class="sumario-texto">Especificações de Casos de Uso</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">9</span>
+  </div>
+  <div class="sumario-item nivel3">
+    <span class="sumario-num">3.3.1</span>
+    <span class="sumario-texto">UC-01 — Criar Ordem de Serviço</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">9</span>
+  </div>
+  <div class="sumario-item nivel3">
+    <span class="sumario-num">3.3.2</span>
+    <span class="sumario-texto">UC-03 — Atualizar Status da OS</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">11</span>
+  </div>
+  <div class="sumario-item nivel3">
+    <span class="sumario-num">3.3.3</span>
+    <span class="sumario-texto">UC-11 — Criar Agendamento</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">13</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">4</span>
+    <span class="sumario-texto">RA2 — DIAGRAMAS ESTRUTURAIS</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">15</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">4.1</span>
+    <span class="sumario-texto">Modelo de Domínio</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">15</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">4.2</span>
+    <span class="sumario-texto">Diagrama de Classes</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">16</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">4.3</span>
+    <span class="sumario-texto">Diagrama de Objetos</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">18</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">5</span>
+    <span class="sumario-texto">RA3 — DIAGRAMAS COMPORTAMENTAIS</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">19</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">5.1</span>
+    <span class="sumario-texto">Diagramas de Sequência</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">19</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">5.2</span>
+    <span class="sumario-texto">Diagramas de Atividades</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">24</span>
+  </div>
+  <div class="sumario-item nivel2">
+    <span class="sumario-num">5.3</span>
+    <span class="sumario-texto">Diagramas de Máquina de Estados</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">28</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">6</span>
+    <span class="sumario-texto">PROTÓTIPO E NAVEGAÇÃO DE TELAS</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">30</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">7</span>
+    <span class="sumario-texto">CRIATIVIDADE</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">32</span>
+  </div>
+
+  <div class="sumario-item">
+    <span class="sumario-num">8</span>
+    <span class="sumario-texto">RESPONSABILIDADES</span>
+    <span class="sumario-dots"></span>
+    <span class="sumario-pagina">33</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     CONTEÚDO
+════════════════════════════════════════ -->
+<div class="conteudo">
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 1 — INTRODUÇÃO
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">1 INTRODUÇÃO</h1>
+
+  <h2 class="subsecao">1.1 Contexto de Negócio</h2>
+
+  <p>
+    O mercado de cuidados automotivos — popularmente chamado de <em>detailing</em> — tem crescido
+    expressivamente no Brasil. As pessoas investem cada vez mais em seus veículos e buscam serviços
+    de qualidade. No entanto, a maioria dos estabelecimentos de pequeno e médio porte ainda opera de
+    forma desorganizada: filas sem controle, anotações em papel, comunicação dispersa via aplicativos
+    de mensagem e ausência de visibilidade financeira.
+  </p>
+
+  <p>
+    O <strong>WashControl</strong> é um sistema <em>Software as a Service</em> (SaaS) multi-tenant
+    desenvolvido para atender lava-cars e estéticas automotivas. Cada estabelecimento cadastrado na
+    plataforma é tratado como um <em>tenant</em> isolado, com seus próprios clientes, veículos,
+    funcionários, ordens de serviço e dados financeiros. A plataforma é administrada centralmente por
+    um Super Admin, que gerencia os tenants, planos de assinatura e faturamento.
+  </p>
+
+  <p>
+    A arquitetura multi-tenant permite que o WashControl atenda simultaneamente dezenas de
+    estabelecimentos com um único sistema, reduzindo custos de infraestrutura e facilitando
+    a escalabilidade do produto.
+  </p>
+
+  <h2 class="subsecao">1.2 Justificativa do Projeto</h2>
+
+  <p>
+    O principal problema que o WashControl resolve é a <strong>falta de previsibilidade e controle</strong>
+    nos lava-cars. Quando um cliente deixa o veículo e recebe a informação "volta em 2 horas", mas ao
+    retornar o serviço nem foi iniciado, a confiança é destruída. Da mesma forma, o dono do
+    estabelecimento frequentemente não sabe com precisão quanto lucrou no dia, quais funcionários são
+    mais produtivos ou quais insumos estão em falta.
+  </p>
+
+  <p>
+    O projeto se justifica pela necessidade de automatizar o fluxo operacional — desde o agendamento
+    até a entrega do veículo — e fornecer visibilidade financeira em tempo real ao gestor.
+    Estabelecimentos que utilizam sistemas organizados passam mais credibilidade ao cliente,
+    conseguem atender maior volume de serviços sem perda de qualidade e tomam decisões baseadas
+    em dados concretos.
+  </p>
+
+  <h2 class="subsecao">1.3 Benefícios</h2>
+
+  <p><strong>Para o dono do negócio (Manager):</strong></p>
+  <ul>
+    <li>Controle financeiro real com Demonstrativo de Resultado do Exercício (DRE) automático;</li>
+    <li>Visibilidade da produtividade da equipe com cálculo automático de comissões;</li>
+    <li>Gestão de estoque integrada ao fluxo de atendimento;</li>
+    <li>Programa de fidelidade configurável para reter clientes.</li>
+  </ul>
+
+  <p><strong>Para o lavador (Washer):</strong></p>
+  <ul>
+    <li>Interface simplificada e responsiva para uso no pátio via celular;</li>
+    <li>Fila de serviços organizada, eliminando conflitos de atribuição.</li>
+  </ul>
+
+  <p><strong>Para a operação como um todo:</strong></p>
+  <ul>
+    <li>Redução de erros humanos (dupla marcação, serviços não cobrados);</li>
+    <li>Rastreabilidade completa do ciclo de vida de cada ordem de serviço;</li>
+    <li>Isolamento total de dados entre estabelecimentos (multi-tenancy seguro).</li>
+  </ul>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 2 — REQUISITOS
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">2 REQUISITOS</h1>
+
+  <h2 class="subsecao">2.1 Requisitos Funcionais</h2>
+
+  <div class="tabela-container no-break">
+    <p class="sem-recuo tabela-titulo">Quadro 1 — Requisitos Funcionais do WashControl</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:1.2cm">ID</th>
+          <th style="width:8cm">Descrição</th>
+          <th style="width:3cm">Requisitante</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>RF01</strong></td>
+          <td>O sistema deve permitir o cadastro e gerenciamento de Tenants (lava-jatos parceiros).</td>
+          <td><span class="badge badge-adm">SUPER_ADMIN</span></td>
+          <td>Criação da conta principal da loja no modelo SaaS, com nome, slug único e plano de assinatura.</td>
+        </tr>
+        <tr>
+          <td><strong>RF02</strong></td>
+          <td>O sistema deve permitir o cadastro de clientes e seus respectivos veículos.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>Suporte à vinculação de múltiplos veículos a um único cliente. Placa única por tenant.</td>
+        </tr>
+        <tr>
+          <td><strong>RF03</strong></td>
+          <td>O sistema deve gerenciar o ciclo de vida da Ordem de Serviço (OS) através de um Kanban.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>A OS transita pelos status: PENDING, WAITING_QUEUE, IN_PROGRESS, READY, COMPLETED ou CANCELED.</td>
+        </tr>
+        <tr>
+          <td><strong>RF04</strong></td>
+          <td>O sistema deve permitir a visualização e atualização de status das OSs ativas no pátio.</td>
+          <td><span class="badge badge-wsh">WASHER</span></td>
+          <td>Interface simplificada para que o lavador mova o card da OS (ex: WAITING_QUEUE → IN_PROGRESS).</td>
+        </tr>
+        <tr>
+          <td><strong>RF05</strong></td>
+          <td>O sistema deve permitir o agendamento prévio (Appointment) de serviços de lavagem.</td>
+          <td><span class="badge badge-cli">CLIENTE</span> <span class="badge badge-mgr">MANAGER</span></td>
+          <td>O cliente ou o gerente podem reservar horário. Um agendamento gera no máximo uma OS (idempotência).</td>
+        </tr>
+        <tr>
+          <td><strong>RF06</strong></td>
+          <td>O sistema deve abater automaticamente produtos do estoque ao concluir uma OS.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>Integração entre a conclusão da OS (COMPLETED) e a baixa automática dos insumos utilizados.</td>
+        </tr>
+        <tr>
+          <td><strong>RF07</strong></td>
+          <td>O sistema deve gerar uma transação financeira de receita ao concluir uma OS.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>O fechamento da OS no Kanban engatilha o registro financeiro automático com método de pagamento.</td>
+        </tr>
+        <tr>
+          <td><strong>RF08</strong></td>
+          <td>O sistema deve permitir o registro e controle de despesas fixas e pagamentos de funcionários.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>Controle de custos operacionais como água, luz, aluguel e comissões calculadas por OS concluída.</td>
+        </tr>
+        <tr>
+          <td><strong>RF09</strong></td>
+          <td>O sistema deve disparar notificações sobre a mudança de status do veículo.</td>
+          <td><span class="badge badge-cli">CLIENTE</span></td>
+          <td>O cliente deve ser avisado (ex: via WhatsApp ou Push) quando o status mudar para READY.</td>
+        </tr>
+        <tr>
+          <td><strong>RF10</strong></td>
+          <td>O sistema deve prover relatórios gerenciais sobre volume de OSs, receitas e despesas.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td>Dashboard unificando dados financeiros e operacionais do Tenant (DRE, fluxo de caixa, KPIs).</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="tabela-fonte">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <h2 class="subsecao">2.2 Requisitos Não Funcionais (Classificação FURPS+)</h2>
+
+  <div class="tabela-container no-break">
+    <p class="sem-recuo tabela-titulo">Quadro 2 — Requisitos Não Funcionais do WashControl (FURPS+)</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:1.2cm">ID</th>
+          <th style="width:7cm">Descrição</th>
+          <th style="width:3cm">Requisitante</th>
+          <th style="width:3cm">Categoria FURPS+</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>RNF01</strong></td>
+          <td>O sistema deve possuir interface responsiva para smartphones.</td>
+          <td><span class="badge badge-wsh">WASHER</span></td>
+          <td><strong>Usability</strong></td>
+          <td>Essencial para uso no pátio via celular, com mãos potencialmente molhadas.</td>
+        </tr>
+        <tr>
+          <td><strong>RNF02</strong></td>
+          <td>O sistema deve garantir isolamento lógico dos dados entre diferentes lojas.</td>
+          <td><span class="badge badge-adm">SUPER_ADMIN</span></td>
+          <td><strong>Reliability</strong></td>
+          <td>Um gerente nunca pode acessar dados de outro tenant. O tenantId é obrigatório em todas as queries.</td>
+        </tr>
+        <tr>
+          <td><strong>RNF03</strong></td>
+          <td>A atualização de status da OS deve ser refletida na interface em no máximo 2 segundos.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td><strong>Performance</strong></td>
+          <td>Tempo de resposta que garante fluidez da operação no pátio em tempo real.</td>
+        </tr>
+        <tr>
+          <td><strong>RNF04</strong></td>
+          <td>O sistema deve utilizar o padrão Repository com ORM (Prisma) para acesso a dados.</td>
+          <td>Dev. Team</td>
+          <td><strong>Supportability</strong></td>
+          <td>Facilita manutenção do código, trocas de SGBD e escalabilidade do sistema.</td>
+        </tr>
+        <tr>
+          <td><strong>RNF05</strong></td>
+          <td>O acesso a funcionalidades financeiras e de estoque deve ser restrito ao papel MANAGER.</td>
+          <td><span class="badge badge-mgr">MANAGER</span></td>
+          <td><strong>+ Security</strong></td>
+          <td>O WASHER possui apenas acesso operacional (pátio, OS), sem visibilidade financeira.</td>
+        </tr>
+        <tr>
+          <td><strong>RNF06</strong></td>
+          <td>O modelo de dados central do sistema deve ser armazenado em banco de dados relacional.</td>
+          <td>Arquitetura</td>
+          <td><strong>+ Implementation</strong></td>
+          <td>Restrição tecnológica atendida pelo uso do schema.prisma com PostgreSQL.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="tabela-fonte">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 3 — RA1
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">3 RA1 — MODELO DE DOMÍNIO E CASOS DE USO</h1>
+
+  <h2 class="subsecao">3.1 Diagrama de Caso de Uso</h2>
+
+  <p>
+    O diagrama de caso de uso a seguir apresenta os quatro atores do sistema — <strong>Super Admin</strong>,
+    <strong>Manager</strong>, <strong>Washer</strong> e <strong>Cliente</strong> — e seus respectivos
+    casos de uso distribuídos em cinco pacotes funcionais. As relações de
+    <code>&lt;&lt;include&gt;&gt;</code> e <code>&lt;&lt;extend&gt;&gt;</code> modelam as
+    automações disparadas pelo sistema ao concluir uma OS.
+  </p>
+
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 1 — Diagrama de Caso de Uso do WashControl</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml CasosDeUso_WashControl
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Manager\n(Dono/Gerente)" as MGR
+actor "Washer\n(Lavador)"       as WSH
+actor "Cliente"                  as CLI
+actor "Super Admin"              as SA
+actor "Sistema"                  as SYS &lt;&lt;system&gt;&gt;
+
+rectangle "WashControl SaaS" {
+  package "Gestão de OS" {
+    usecase "Criar OS"                    as UC01
+    usecase "Adicionar Itens à OS"        as UC02
+    usecase "Atualizar Status da OS"      as UC03
+    usecase "Cancelar OS"                 as UC04
+    usecase "Visualizar Board Kanban"     as UC05
+    usecase "Registrar Pagamento"         as UC06
+  }
+  package "Clientes e Veículos" {
+    usecase "Cadastrar Cliente"           as UC07
+    usecase "Cadastrar Veículo"           as UC08
+    usecase "Consultar Histórico"         as UC09
+    usecase "Aplicar Desconto Fidelidade" as UC10
+  }
+  package "Agendamentos" {
+    usecase "Criar Agendamento"           as UC11
+    usecase "Converter em OS"             as UC12
+    usecase "Cancelar Agendamento"        as UC13
+  }
+  package "Financeiro e Estoque" {
+    usecase "Visualizar DRE"              as UC14
+    usecase "Lançar Despesa Manual"       as UC15
+    usecase "Gerenciar Insumos"           as UC18
+    usecase "Baixar Estoque por OS"       as UC19
+    usecase "Calcular Comissão"           as UC17
+  }
+  package "Administração SaaS" {
+    usecase "Gerenciar Tenants"           as UC24
+    usecase "Configurar Plano SaaS"       as UC25
+    usecase "Ativar/Desativar Tenant"     as UC26
+  }
+}
+
+MGR --> UC01 ; MGR --> UC02 ; MGR --> UC03 ; MGR --> UC04
+MGR --> UC05 ; MGR --> UC06 ; MGR --> UC07 ; MGR --> UC08
+MGR --> UC09 ; MGR --> UC11 ; MGR --> UC12 ; MGR --> UC14
+MGR --> UC15 ; MGR --> UC18
+
+WSH --> UC03 ; WSH --> UC05
+CLI --> UC11
+SA  --> UC24 ; SA  --> UC25 ; SA  --> UC26
+
+UC12 ..> UC01 : &lt;&lt;include&gt;&gt;
+UC19 ..> UC03 : &lt;&lt;extend&gt;&gt; [ao COMPLETED]
+UC17 ..> UC03 : &lt;&lt;extend&gt;&gt; [ao COMPLETED]
+UC10 ..> UC01 : &lt;&lt;extend&gt;&gt; [fidelidade atingida]
+SYS  --> UC10 ; SYS --> UC19 ; SYS --> UC17
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026). Renderizar em planttext.com para exportar como imagem.</p>
+  </div>
+
+  <!-- ────────────────────────────────────────
+       3.3 ESPECIFICAÇÕES DE CASO DE USO
+  ──────────────────────────────────────── -->
+  <h2 class="subsecao">3.3 Especificações de Casos de Uso</h2>
+
+  <p>
+    As especificações a seguir detalham os três casos de uso mais representativos do WashControl,
+    cobrindo o fluxo de criação de uma Ordem de Serviço (UC-01), a atualização de seu status ao
+    longo do ciclo de vida (UC-03) e o processo de agendamento prévio de atendimento (UC-11).
+  </p>
+
+  <h3 class="subsubsecao">3.3.1 UC-01 — Criar Ordem de Serviço</h3>
+
+  <div class="cdu-box no-break">
+    <div class="cdu-header">UC-01 — Criar Ordem de Serviço</div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Breve Descrição</div>
+      <div class="cdu-value">
+        <p>Permite que o Manager registre a entrada de um veículo no sistema, criando uma Ordem de Serviço vinculada a um cliente, um veículo e contendo os itens de serviço e/ou insumos a serem executados. A OS é criada com status PENDING e passa a compor o board Kanban.</p>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Principal</div>
+      <div class="cdu-value"><p><span class="badge badge-mgr">Manager</span></p></div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Secundário</div>
+      <div class="cdu-value"><p>Sistema — valida dados, persiste registros, verifica fidelidade.</p></div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pré-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>O Manager deve estar autenticado com papel MANAGER;</li>
+          <li>O cliente deve estar cadastrado no sistema (ou ser cadastrado durante o fluxo);</li>
+          <li>O veículo deve estar vinculado ao cliente;</li>
+          <li>Deve haver pelo menos um produto/serviço no catálogo do tenant.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pós-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>Uma nova OS é criada com status PENDING no banco de dados;</li>
+          <li>A OS aparece na coluna PENDING do board Kanban;</li>
+          <li>Os itens (OrderItems) estão vinculados à OS com preços e quantidades.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Fluxo de Eventos</div>
+      <div class="cdu-value">
+
+        <div class="fluxo-titulo">Fluxo Básico</div>
+        <p class="fluxo-passo">1. O Manager acessa o módulo de Ordens de Serviço.</p>
+        <p class="fluxo-passo">2. O Manager clica em "Nova OS".</p>
+        <p class="fluxo-passo">3. O sistema exibe o formulário com campos: cliente, veículo, itens, observações e pagamento antecipado.</p>
+        <p class="fluxo-passo">4. O Manager seleciona o cliente pelo nome ou telefone.</p>
+        <p class="fluxo-passo">5. O sistema lista os veículos vinculados ao cliente selecionado.</p>
+        <p class="fluxo-passo">6. O Manager seleciona o veículo a ser atendido.</p>
+        <p class="fluxo-passo">7. O Manager adiciona os itens da OS (serviços e/ou insumos) com quantidades e preços unitários.</p>
+        <p class="fluxo-passo">8. O sistema calcula e exibe o valor total em tempo real.</p>
+        <p class="fluxo-passo">9. O Manager confirma a criação clicando em "Criar OS".</p>
+        <p class="fluxo-passo">10. O sistema persiste a OS com status PENDING e redireciona para o board Kanban.</p>
+        <p class="fluxo-passo">11. O sistema verifica se o cliente atingiu o intervalo de fidelidade e, se aplicável, sinaliza desconto.</p>
+
+        <div class="fluxo-titulo">Fluxo Alternativo — Cliente não cadastrado</div>
+        <p class="fluxo-passo">4a. O Manager não encontra o cliente na busca.</p>
+        <p class="fluxo-passo">4b. O Manager clica em "Novo Cliente".</p>
+        <p class="fluxo-passo">4c. O sistema exibe o formulário de cadastro de cliente (nome, telefone, e-mail).</p>
+        <p class="fluxo-passo">4d. O Manager preenche, confirma o cadastro e o fluxo retorna ao passo 5.</p>
+
+        <div class="fluxo-titulo">Fluxo Alternativo — Criação via Agendamento</div>
+        <p class="fluxo-passo">1a. O Manager converte um agendamento existente em OS (UC-12).</p>
+        <p class="fluxo-passo">1b. O sistema preenche automaticamente cliente e veículo a partir do agendamento.</p>
+        <p class="fluxo-passo">1c. O fluxo continua a partir do passo 7.</p>
+        <p class="fluxo-passo"><em>Restrição:</em> o sistema bloqueia a criação de segunda OS para o mesmo agendamento (idempotência via Appointment.orderId @unique).</p>
+
+        <div class="fluxo-titulo">Fluxo de Exceção — OS sem itens</div>
+        <p class="fluxo-passo">9a. O Manager tenta confirmar a OS sem nenhum item adicionado.</p>
+        <p class="fluxo-passo">9b. O sistema exibe: <em>"A OS deve conter pelo menos um serviço ou insumo"</em>.</p>
+        <p class="fluxo-passo">9c. O fluxo retorna ao passo 7.</p>
+
+      </div>
+    </div>
+  </div>
+
+  <h3 class="subsubsecao">3.3.2 UC-03 — Atualizar Status da Ordem de Serviço</h3>
+
+  <div class="cdu-box no-break">
+    <div class="cdu-header">UC-03 — Atualizar Status da Ordem de Serviço</div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Breve Descrição</div>
+      <div class="cdu-value">
+        <p>Permite que o Manager ou o Washer movam a OS entre os estados do ciclo de vida (PENDING → WAITING_QUEUE → IN_PROGRESS → READY → COMPLETED). Ao atingir COMPLETED, o sistema executa automaticamente os processos financeiro, de estoque e de fidelidade.</p>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Principal</div>
+      <div class="cdu-value">
+        <p><span class="badge badge-mgr">Manager</span> (todos os status) &nbsp;|&nbsp;
+           <span class="badge badge-wsh">Washer</span> (IN_PROGRESS e READY)</p>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Secundário</div>
+      <div class="cdu-value"><p>Sistema — registros financeiros e de estoque automáticos.</p></div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pré-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>O usuário deve estar autenticado;</li>
+          <li>A OS deve existir e pertencer ao tenant do usuário;</li>
+          <li>A transição de status deve ser válida conforme o ciclo de vida definido.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pós-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>O status da OS é atualizado no banco de dados;</li>
+          <li>Os timestamps correspondentes são registrados (startedAt, finishedAt, completedAt);</li>
+          <li>Se COMPLETED: FinancialTransaction, InventoryTransaction, totalWashes++ e comissão são gerados automaticamente;</li>
+          <li>A interface é atualizada em no máximo 2 segundos (RNF03).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Fluxo de Eventos</div>
+      <div class="cdu-value">
+
+        <div class="fluxo-titulo">Fluxo Básico — Conclusão de OS (READY → COMPLETED)</div>
+        <p class="fluxo-passo">1. O Manager localiza a OS na coluna READY do board Kanban.</p>
+        <p class="fluxo-passo">2. O Manager clica em "Concluir / Registrar Pagamento".</p>
+        <p class="fluxo-passo">3. O sistema exibe o formulário de conclusão: método de pagamento, valor total e valor adiantado.</p>
+        <p class="fluxo-passo">4. O Manager seleciona o método de pagamento (PIX, Dinheiro, Cartão Crédito ou Débito).</p>
+        <p class="fluxo-passo">5. O Manager clica em "Confirmar Conclusão".</p>
+        <p class="fluxo-passo">6. O sistema atualiza o status para COMPLETED e registra completedAt = now().</p>
+        <p class="fluxo-passo">7. O sistema cria automaticamente: FinancialTransaction (INCOME), InventoryTransaction OUT por insumo utilizado e decrementa Product.stock.</p>
+        <p class="fluxo-passo">8. O sistema incrementa Customer.totalWashes e verifica o programa de fidelidade.</p>
+        <p class="fluxo-passo">9. O sistema calcula e registra a comissão do Employee vinculado.</p>
+        <p class="fluxo-passo">10. O card da OS é movido para o histórico de OSs concluídas.</p>
+
+        <div class="fluxo-titulo">Fluxo Alternativo — Lavador inicia serviço (WAITING_QUEUE → IN_PROGRESS)</div>
+        <p class="fluxo-passo">1. O Washer acessa a visão do pátio.</p>
+        <p class="fluxo-passo">2. O Washer clica em "Iniciar" no card do veículo.</p>
+        <p class="fluxo-passo">3. O sistema atualiza o status para IN_PROGRESS e registra startedAt = now().</p>
+        <p class="fluxo-passo">4. O card é movido para IN_PROGRESS no Kanban do Manager.</p>
+
+        <div class="fluxo-titulo">Fluxo Alternativo — Cancelamento</div>
+        <p class="fluxo-passo">1. O Manager seleciona "Cancelar OS" no menu do card.</p>
+        <p class="fluxo-passo">2. O sistema solicita confirmação.</p>
+        <p class="fluxo-passo">3. O sistema atualiza o status para CANCELED.</p>
+        <p class="fluxo-passo"><em>Restrição:</em> somente MANAGER pode cancelar uma OS (RNF05).</p>
+
+        <div class="fluxo-titulo">Fluxo de Exceção — Transição inválida</div>
+        <p class="fluxo-passo">1. O sistema rejeita transições fora do ciclo definido (ex: PENDING → COMPLETED).</p>
+        <p class="fluxo-passo">2. O sistema exibe mensagem informando os status válidos para transição.</p>
+
+      </div>
+    </div>
+  </div>
+
+  <h3 class="subsubsecao">3.3.3 UC-11 — Criar Agendamento</h3>
+
+  <div class="cdu-box no-break">
+    <div class="cdu-header">UC-11 — Criar Agendamento</div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Breve Descrição</div>
+      <div class="cdu-value">
+        <p>Permite que o Manager registre previamente um horário de atendimento para um cliente e veículo, reservando uma vaga na agenda do lava-car. O agendamento permanece com status SCHEDULED até ser convertido em OS ou cancelado.</p>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Principal</div>
+      <div class="cdu-value"><p><span class="badge badge-mgr">Manager</span></p></div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Ator Secundário</div>
+      <div class="cdu-value"><p>Sistema — valida disponibilidade de horário e notifica o cliente.</p></div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pré-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>O Manager deve estar autenticado com papel MANAGER;</li>
+          <li>O cliente e veículo devem estar cadastrados no sistema;</li>
+          <li>O horário solicitado não deve estar ocupado por outro agendamento.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Pós-condições</div>
+      <div class="cdu-value">
+        <ul>
+          <li>Um novo Appointment é criado com status SCHEDULED;</li>
+          <li>O agendamento aparece no calendário do sistema;</li>
+          <li>O cliente pode receber uma notificação de confirmação (RF09).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cdu-row">
+      <div class="cdu-label">Fluxo de Eventos</div>
+      <div class="cdu-value">
+
+        <div class="fluxo-titulo">Fluxo Básico</div>
+        <p class="fluxo-passo">1. O Manager acessa o módulo de Agendamentos.</p>
+        <p class="fluxo-passo">2. O Manager clica em "Novo Agendamento".</p>
+        <p class="fluxo-passo">3. O sistema exibe o formulário: data/hora, cliente, veículo, serviço desejado e observações.</p>
+        <p class="fluxo-passo">4. O Manager seleciona a data e horário desejados.</p>
+        <p class="fluxo-passo">5. O sistema verifica a disponibilidade do horário selecionado.</p>
+        <p class="fluxo-passo">6. O Manager seleciona o cliente e o veículo.</p>
+        <p class="fluxo-passo">7. O Manager confirma o agendamento.</p>
+        <p class="fluxo-passo">8. O sistema persiste o Appointment com status SCHEDULED e exibe no calendário.</p>
+
+        <div class="fluxo-titulo">Fluxo Alternativo — Conversão em OS</div>
+        <p class="fluxo-passo">1. No dia do atendimento, o Manager clica em "Converter em OS".</p>
+        <p class="fluxo-passo">2. O sistema cria uma OS pré-preenchida com os dados do agendamento.</p>
+        <p class="fluxo-passo">3. O sistema vincula a OS ao agendamento via Appointment.orderId.</p>
+        <p class="fluxo-passo">4. O status do agendamento é atualizado para COMPLETED.</p>
+
+        <div class="fluxo-titulo">Fluxo de Exceção — Conflito de horário</div>
+        <p class="fluxo-passo">5a. O sistema detecta outro agendamento no mesmo horário.</p>
+        <p class="fluxo-passo">5b. O sistema exibe: <em>"Horário indisponível. Selecione outro horário."</em></p>
+        <p class="fluxo-passo">5c. O Manager seleciona horário alternativo e o fluxo retorna ao passo 6.</p>
+
+        <div class="fluxo-titulo">Fluxo de Exceção — Idempotência (OS já existente)</div>
+        <p class="fluxo-passo">1a. O Manager tenta converter um agendamento que já possui OS vinculada.</p>
+        <p class="fluxo-passo">1b. O sistema rejeita a operação com a mensagem: <em>"Este agendamento já possui uma OS vinculada"</em>.</p>
+        <p class="fluxo-passo">1c. O sistema redireciona para a OS existente (Appointment.orderId @unique).</p>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 4 — RA2
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">4 RA2 — DIAGRAMAS ESTRUTURAIS</h1>
+
+  <h2 class="subsecao">4.1 Modelo de Domínio</h2>
+
+  <p>
+    O modelo de domínio apresenta as entidades do problema de negócio, seus atributos essenciais,
+    multiplicidades e relacionamentos conceituais. Nesta representação não há foco em
+    aspectos técnicos de implementação, mas sim no vocabulário do domínio do lava-car.
+  </p>
+
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 2 — Modelo de Domínio do WashControl</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml ModeloDominio_WashControl
+skinparam classAttributeIconSize 0
+
+class "Lava-Car (Tenant)" {
+  nome; slug; plano; meta mensal
+  intervalo de fidelidade; desconto fidelidade
+}
+class "Usuário" { nome; e-mail; papel }
+class "Cliente" { nome; telefone; total de lavagens }
+class "Veículo" { placa; marca; modelo; cor; ano; tipo }
+class "Ordem de Serviço" {
+  status; valor total; pagamento
+  data início; data conclusão
+}
+class "Item da OS" { nome; quantidade; preço unitário; é serviço? }
+class "Produto/Serviço" { nome; categoria; preço; estoque; mínimo }
+class "Agendamento" { data/hora; status; observações }
+class "Funcionário" { nome; cargo; salário; comissão% }
+class "Transação Financeira" { tipo; descrição; valor; status }
+class "Movimentação de Estoque" { tipo; quantidade }
+class "Despesa Fixa" { nome; valor; dia vencimento }
+
+"Lava-Car (Tenant)"  "1" -- "0..*" "Usuário"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Cliente"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Veículo"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Ordem de Serviço"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Produto/Serviço"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Funcionário"
+"Lava-Car (Tenant)"  "1" -- "0..*" "Despesa Fixa"
+"Cliente"            "1" -- "1..*" "Veículo"
+"Cliente"            "1" -- "0..*" "Ordem de Serviço"
+"Cliente"            "1" -- "0..*" "Agendamento"
+"Veículo"            "1" -- "0..*" "Ordem de Serviço"
+"Ordem de Serviço"   "1" *-- "1..*" "Item da OS"
+"Ordem de Serviço"   "1"  --  "0..1" "Agendamento"
+"Item da OS"         "0..*" -- "0..1" "Produto/Serviço"
+"Produto/Serviço"    "1"  -- "0..*" "Movimentação de Estoque"
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <h2 class="subsecao">4.2 Diagrama de Classes</h2>
+
+  <p>
+    O diagrama de classes a seguir foi construído em correspondência direta com o
+    <code>schema.prisma</code> do WashControl, mapeando todas as entidades, atributos,
+    operações e relacionamentos (composição, associação e dependência) em notação UML.
+  </p>
+
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 3 — Diagrama de Classes do WashControl</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DiagramaClasses_WashControl
+skinparam classAttributeIconSize 0
+
+enum UserRole  { SUPER_ADMIN; MANAGER; WASHER }
+enum OrderStatus {
+  PENDING; WAITING_QUEUE; IN_PROGRESS
+  READY; COMPLETED; CANCELED
+}
+enum VehicleType { CAR; MOTORCYCLE; TRUCK; VAN; SUV }
+
+class Tenant {
+  +id; +name; +slug; +isActive: Boolean
+  +saasPlan; +monthlyGoal: Float
+  +loyaltyInterval: Int; +loyaltyDiscount: Float
+}
+class User {
+  +id; +tenantId?; +name; +email
+  +password; +role: UserRole
+}
+class Customer {
+  +id; +tenantId; +name; +phone?
+  +email?; +totalWashes: Int
+}
+class Vehicle {
+  +id; +tenantId; +customerId
+  +plate; +brand?; +model?; +color?
+  +year?; +type: VehicleType
+}
+class Order {
+  +id; +tenantId; +customerId; +vehicleId
+  +status: OrderStatus; +total: Float
+  +advancePayment: Float; +paymentMethod?
+  +startedAt?; +finishedAt?; +completedAt?
+  --
+  +criarOS(): void
+  +atualizarStatus(s: OrderStatus): void
+  +calcularTotal(): Float
+  +concluir(method: String): void
+  +cancelar(): void
+}
+class OrderItem {
+  +id; +orderId; +productId?
+  +name; +quantity: Float
+  +unitPrice: Float; +isService: Boolean
+}
+class Product {
+  +id; +tenantId; +name; +category?
+  +price: Float; +stock: Float
+  +minStock: Float; +unit; +isService: Boolean
+  --
+  +verificarEstoqueMinimo(): Boolean
+  +decrementarEstoque(qty: Float): void
+}
+class Appointment {
+  +id; +tenantId; +customerId
+  +vehicleId?; +orderId?
+  +date: DateTime; +status; +notes?
+  --
+  +converterEmOS(): Order
+  +cancelar(): void
+}
+class Employee {
+  +id; +tenantId; +name; +role
+  +salary: Float; +commissionPct: Float
+  +isActive: Boolean; +userId?
+  --
+  +calcularComissao(total: Float): Float
+}
+class FinancialTransaction {
+  +id; +tenantId; +orderId?
+  +type; +category; +description
+  +amount: Float; +status; +paymentMethod?
+}
+class InventoryTransaction {
+  +id; +tenantId; +productId; +orderId?
+  +type; +quantity: Float
+}
+class FixedExpense {
+  +id; +tenantId; +name
+  +amount: Float; +dueDay: Int; +isActive: Boolean
+  --
+  +lancarMensalmente(): FinancialTransaction
+}
+
+Tenant "1" *-- "0..*" User
+Tenant "1" *-- "0..*" Customer
+Tenant "1" *-- "0..*" Vehicle
+Tenant "1" *-- "0..*" Order
+Tenant "1" *-- "0..*" Product
+Tenant "1" *-- "0..*" Employee
+Tenant "1" *-- "0..*" Appointment
+Tenant "1" *-- "0..*" FinancialTransaction
+Tenant "1" *-- "0..*" InventoryTransaction
+Tenant "1" *-- "0..*" FixedExpense
+Customer "1" -- "0..*" Vehicle
+Customer "1" -- "0..*" Order
+Customer "1" -- "0..*" Appointment
+Vehicle  "1" -- "0..*" Order
+Order    "1" *-- "1..*" OrderItem
+Order    "1" -- "0..1" Appointment
+OrderItem "0..*" -- "0..1" Product
+Product "1" -- "0..*" InventoryTransaction
+Employee "0..1" -- "0..1" User
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <h2 class="subsecao">4.3 Diagrama de Objetos</h2>
+
+  <p>
+    O diagrama de objetos apresenta um <em>snapshot</em> concreto do sistema, representando o
+    cenário em que o cliente <strong>João Silva</strong> deixou seu veículo
+    <strong>Honda Civic (ABC-1234)</strong> para lavagem completa com cera, com a OS em
+    execução (<em>IN_PROGRESS</em>).
+  </p>
+
+  <p>
+    As classes <strong>Order, Customer, Vehicle, OrderItem e Product</strong> foram selecionadas
+    por constituírem o núcleo transacional do sistema — são as entidades que trocam estado com
+    maior frequência durante a operação diária. Employee e FinancialTransaction foram
+    omitidos pois ainda não possuem valores definitivos enquanto a OS está em andamento.
+  </p>
+
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 4 — Diagrama de Objetos: OS em execução</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DiagramaObjetos_WashControl
+
+object "lavaJatoSul : Tenant" as t {
+  id            = "clx001tenant"
+  name          = "Lava Jato Sul"
+  slug          = "lava-jato-sul"
+  saasPlan      = "PRO"
+  loyaltyInterval = 10
+}
+object "joao : Customer" as c {
+  id          = "clx002customer"
+  tenantId    = "clx001tenant"
+  name        = "João Silva"
+  phone       = "(41) 99999-1234"
+  totalWashes = 7
+}
+object "civic : Vehicle" as v {
+  id        = "clx003vehicle"
+  tenantId  = "clx001tenant"
+  plate     = "ABC-1234"
+  brand     = "Honda"
+  model     = "Civic"
+  year      = 2021
+  type      = CAR
+}
+object "os001 : Order" as o {
+  id             = "clx004order"
+  tenantId       = "clx001tenant"
+  status         = IN_PROGRESS
+  total          = 120.00
+  startedAt      = "2026-04-17 09:30"
+  completedAt    = null
+}
+object "item1 : OrderItem" as i1 {
+  name      = "Lavagem Completa"
+  quantity  = 1.0
+  unitPrice = 80.00
+  isService = true
+}
+object "item2 : OrderItem" as i2 {
+  name      = "Cera Automotiva"
+  quantity  = 1.0
+  unitPrice = 40.00
+  isService = false
+}
+object "ceraCarnauba : Product" as p {
+  name     = "Cera Automotiva Carnaúba 500g"
+  stock    = 12.0
+  minStock = 3.0
+  isService = false
+}
+
+t --> c ; t --> v ; t --> o
+c --> v ; c --> o ; v --> o
+o --> i1 ; o --> i2 ; i2 --> p
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 5 — RA3
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">5 RA3 — DIAGRAMAS COMPORTAMENTAIS</h1>
+
+  <h2 class="subsecao">5.1 Diagramas de Sequência</h2>
+
+  <p>
+    Os cinco diagramas de sequência a seguir modelam as principais interações do WashControl,
+    utilizando fragmentos combinados (<code>alt</code>, <code>loop</code>, <code>opt</code>)
+    para representar condições, repetições e comportamentos opcionais.
+  </p>
+
+  <!-- DS-01 -->
+  <h3 class="subsubsecao">DS-01 — Autenticação e Acesso ao Dashboard</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 5 — DS-01: Autenticação</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DS01_Autenticacao
+actor Manager
+participant "LoginForm (Client)" as UI
+participant "Middleware (auth)"   as MID
+participant "NextAuth Action"     as AUTH
+database    "PostgreSQL"          as DB
+
+Manager -> UI : informa e-mail e senha
+UI -> AUTH : signIn(email, password)
+AUTH -> DB : SELECT User WHERE email = ?
+
+alt Usuário encontrado
+  DB --> AUTH : { id, name, role, tenantId, hash }
+  AUTH -> AUTH : bcrypt.compare(password, hash)
+  alt Senha correta
+    AUTH --> UI : JWT { id, role, tenantId }
+    UI -> MID : GET /dashboard
+    MID -> MID : verifica JWT, extrai role/tenantId
+    MID --> UI : acesso permitido
+    UI --> Manager : exibe Dashboard com KPIs
+  else Senha incorreta
+    AUTH --> UI : erro: "Credenciais inválidas"
+    UI --> Manager : exibe mensagem de erro
+  end
+else Usuário não encontrado
+  DB --> AUTH : null
+  AUTH --> UI : erro: "Usuário não encontrado"
+  UI --> Manager : exibe mensagem de erro
+end
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DS-02 -->
+  <h3 class="subsubsecao">DS-02 — Criar e Concluir Ordem de Serviço</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 6 — DS-02: Ciclo completo da OS</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DS02_CriarConcluirOS
+actor Manager
+actor Washer
+participant "Dashboard (Client)"  as UI
+participant "Server Action (OS)"  as SA
+participant "Prisma ORM"          as ORM
+database    "PostgreSQL"          as DB
+
+== Criação ==
+Manager -> UI : preenche formulário (cliente, veículo, itens)
+UI -> SA : criarOS(tenantId, customerId, vehicleId, items[])
+SA -> ORM : order.create({ status: PENDING, items })
+ORM -> DB : INSERT Order + OrderItem(s)
+DB --> ORM : orderId
+SA --> UI : revalidatePath
+UI --> Manager : OS no Kanban — coluna PENDING
+
+== Fila ==
+Manager -> UI : move para WAITING_QUEUE
+UI -> SA : atualizarStatus(orderId, WAITING_QUEUE)
+SA -> ORM : order.update({ status: WAITING_QUEUE })
+ORM -> DB : UPDATE Order
+SA --> UI : OK
+
+== Lavador inicia ==
+Washer -> UI : clica "Iniciar"
+UI -> SA : atualizarStatus(orderId, IN_PROGRESS)
+SA -> ORM : order.update({ status: IN_PROGRESS, startedAt: now() })
+ORM -> DB : UPDATE Order
+SA --> UI : OK
+
+== Lavador finaliza ==
+Washer -> UI : clica "Finalizado"
+UI -> SA : atualizarStatus(orderId, READY)
+SA -> ORM : order.update({ status: READY, finishedAt: now() })
+ORM -> DB : UPDATE Order
+SA --> UI : OK
+
+== Conclusão com pagamento ==
+Manager -> UI : confirma pagamento + método
+UI -> SA : concluirOS(orderId, paymentMethod, total)
+SA -> ORM : order.update({ status: COMPLETED, completedAt: now() })
+ORM -> DB : UPDATE Order
+SA -> ORM : financialTransaction.create(INCOME, total)
+ORM -> DB : INSERT FinancialTransaction
+loop cada OrderItem com isService = false
+  SA -> ORM : inventoryTransaction.create(OUT, qty)
+  ORM -> DB : INSERT InventoryTransaction
+  SA -> ORM : product.update(stock - qty)
+  ORM -> DB : UPDATE Product.stock
+end
+SA -> ORM : customer.update(totalWashes + 1)
+ORM -> DB : UPDATE Customer
+DB --> ORM : OK
+SA --> UI : sucesso
+UI --> Manager : OS → COMPLETED
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DS-03 -->
+  <h3 class="subsubsecao">DS-03 — Criar Agendamento e Converter em OS</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 7 — DS-03: Agendamento</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DS03_Agendamento
+actor Manager
+participant "Dashboard (Client)"      as UI
+participant "Server Action (Agenda)"  as SA
+participant "Prisma ORM"              as ORM
+database    "PostgreSQL"              as DB
+
+== Criação do Agendamento ==
+Manager -> UI : preenche data, cliente, veículo
+UI -> SA : criarAgendamento(tenantId, dados)
+SA -> ORM : appointment.findMany(date range)
+ORM -> DB : SELECT conflitos de horário
+DB --> ORM : [] (disponível)
+SA -> ORM : appointment.create({ status: SCHEDULED })
+ORM -> DB : INSERT Appointment
+SA --> UI : sucesso
+UI --> Manager : agendamento no calendário
+
+== Conversão em OS ==
+Manager -> UI : clica "Converter em OS"
+UI -> SA : converterEmOS(appointmentId)
+SA -> ORM : appointment.findUnique(id)
+ORM -> DB : SELECT Appointment
+DB --> ORM : { orderId: null }
+
+alt orderId == null
+  SA -> ORM : order.create({ status: PENDING })
+  ORM -> DB : INSERT Order
+  SA -> ORM : appointment.update({ orderId, status: COMPLETED })
+  ORM -> DB : UPDATE Appointment
+  SA --> UI : redireciona para Kanban
+else orderId != null
+  SA --> UI : erro: "OS já vinculada"
+  UI --> Manager : alerta com link para OS existente
+end
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DS-04 -->
+  <h3 class="subsubsecao">DS-04 — Baixa Automática de Estoque ao Concluir OS</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 8 — DS-04: Baixa de estoque</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DS04_BaixaEstoque
+actor Manager
+participant "Dashboard (Client)"  as UI
+participant "Server Action"       as SA
+participant "Prisma ORM"          as ORM
+database    "PostgreSQL"          as DB
+
+Manager -> UI : confirma conclusão da OS
+UI -> SA : concluirOS(orderId, paymentMethod)
+SA -> ORM : orderItem.findMany({ orderId, isService: false })
+ORM -> DB : SELECT insumos da OS
+DB --> ORM : [ {productId, quantity}, ... ]
+
+loop para cada insumo
+  SA -> ORM : product.findUnique(productId)
+  ORM -> DB : SELECT Product
+  DB --> ORM : { stock, minStock }
+
+  alt stock >= quantity
+    SA -> ORM : inventoryTransaction.create(OUT)
+    ORM -> DB : INSERT InventoryTransaction
+    SA -> ORM : product.update(stock - quantity)
+    ORM -> DB : UPDATE Product
+    opt novo stock < minStock
+      SA --> UI : alerta estoque mínimo atingido
+    end
+  else stock insuficiente
+    SA --> UI : aviso: estoque negativo registrado
+    SA -> ORM : product.update(stock - quantity)
+    ORM -> DB : UPDATE Product (valor negativo)
+  end
+end
+SA --> UI : baixas concluídas
+UI --> Manager : OS → COMPLETED
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DS-05 -->
+  <h3 class="subsubsecao">DS-05 — Visualização do Relatório Financeiro (DRE)</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 9 — DS-05: DRE Financeiro</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DS05_Financeiro
+actor Manager
+participant "Page (Server Component)" as SC
+participant "Server Action (Finance)" as SA
+participant "Prisma ORM"              as ORM
+database    "PostgreSQL"              as DB
+
+Manager -> SC : GET /dashboard/financeiro?mes=4&ano=2026
+SC -> SA : getDadosFinanceiros(tenantId, mes, ano)
+SA -> ORM : financialTransaction.findMany(INCOME, range)
+ORM -> DB : SELECT receitas do período
+DB --> ORM : FinancialTransaction[]
+SA -> ORM : financialTransaction.findMany(EXPENSE, range)
+ORM -> DB : SELECT despesas do período
+DB --> ORM : FinancialTransaction[]
+SA -> ORM : fixedExpense.findMany({ isActive: true })
+ORM -> DB : SELECT despesas fixas ativas
+DB --> ORM : FixedExpense[]
+SA -> SA : calcularDRE() → { receitas, despesas, lucro, margem% }
+SA --> SC : { kpis, transacoes[], dre }
+SC --> Manager : Dashboard com KPIs, gráfico e DRE
+
+opt Manager altera período
+  Manager -> SA : getDadosFinanceiros(novoMes, novoAno)
+  note right : repete fluxo acima
+end
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <h2 class="subsecao">5.2 Diagramas de Atividades</h2>
+
+  <p>
+    Os quatro diagramas de atividades a seguir modelam os principais processos do WashControl,
+    utilizando construções de paralelismo (<em>fork/join</em>) e condições de desvio (<em>if/else</em>),
+    conforme exigido pela notação UML.
+  </p>
+
+  <!-- DA-01 -->
+  <h3 class="subsubsecao">DA-01 — Fluxo Completo de Atendimento (Ciclo da OS)</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 10 — DA-01: Ciclo completo da OS com raias por ator</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DA01_FluxoOS
+|Manager|
+start
+:Recebe veículo e busca cliente no sistema;
+:Seleciona veículo e adiciona itens à OS;
+:Confirma criação (status: PENDING);
+|Sistema|
+:Persiste OS; exibe no Kanban — PENDING;
+|Manager|
+:Move OS para WAITING_QUEUE;
+|Washer|
+:Visualiza fila e seleciona OS; clica "Iniciar";
+|Sistema|
+:Status → IN_PROGRESS; startedAt = now();
+|Washer|
+:Executa serviços; clica "Finalizado";
+|Sistema|
+:Status → READY; finishedAt = now();
+|Manager|
+:Recebe pagamento;
+fork
+  :Registra método de pagamento;
+fork again
+  |Sistema|
+  :Dispara notificação ao cliente (RF09);
+end fork
+|Manager|
+:Confirma conclusão da OS;
+|Sistema|
+:Status → COMPLETED; completedAt = now();
+fork
+  :Cria FinancialTransaction (INCOME);
+fork again
+  :Baixa estoque dos insumos (OUT);
+fork again
+  :Customer.totalWashes++;
+end fork
+if (totalWashes % loyaltyInterval == 0?) then (Sim)
+  :Aplica/sinaliza desconto de fidelidade;
+else (Não)
+endif
+:Calcula comissão do funcionário;
+stop
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DA-02 -->
+  <h3 class="subsubsecao">DA-02 — Fluxo de Agendamento</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 11 — DA-02: Agendamento com idempotência</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DA02_Agendamento
+start
+:Manager cria agendamento (data, cliente, veículo);
+|Sistema|
+:Verifica disponibilidade do horário;
+if (Horário disponível?) then (Sim)
+  :Salva Appointment — SCHEDULED;
+  fork
+    :Exibe no calendário;
+  fork again
+    :Envia lembrete ao cliente (RF09 — futuro);
+  end fork
+  :Data do atendimento chega;
+  if (Cliente comparece?) then (Sim)
+    |Manager|
+    :Clica "Converter em OS";
+    |Sistema|
+    if (orderId == null?) then (Sim)
+      :Cria Order PENDING; vincula orderId;
+      :Appointment → COMPLETED;
+    else (Não — OS já existe)
+      :Bloqueia criação duplicada;
+      :Exibe link para OS existente;
+    endif
+  else (Não comparece)
+    |Manager|
+    :Cancela agendamento;
+    |Sistema|
+    :Appointment → CANCELED;
+  endif
+else (Horário ocupado)
+  :Exibe aviso de conflito;
+  :Retorna ao formulário;
+endif
+stop
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DA-03 -->
+  <h3 class="subsubsecao">DA-03 — Cálculo de Fidelidade e Desconto</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 12 — DA-03: Programa de fidelidade</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DA03_Fidelidade
+start
+:OS concluída (status → COMPLETED);
+|Sistema|
+:Customer.totalWashes + 1;
+:Consulta: loyaltyInterval e loyaltyDiscount do Tenant;
+if (totalWashes % loyaltyInterval == 0?) then (Sim)
+  :Cliente atingiu marco de fidelidade;
+  fork
+    :Registra desconto para próxima OS;
+  fork again
+    :Notifica cliente sobre bônus (RF09 — futuro);
+  end fork
+  if (loyaltyDiscount == 100?) then (Lavagem grátis)
+    :Próxima OS com valor = R$ 0,00;
+  else (Desconto parcial)
+    :Próxima OS com {loyaltyDiscount}% de desconto;
+  endif
+else (Não)
+  :Exibe progresso: "X de N lavagens";
+endif
+stop
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DA-04 -->
+  <h3 class="subsubsecao">DA-04 — Lançamento de Despesa Fixa Mensal</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 13 — DA-04: Despesa fixa recorrente</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DA04_DespesaFixa
+start
+:Sistema verifica data atual;
+:Consulta FixedExpenses onde dueDay == dia_atual;
+if (Existem despesas a lançar?) then (Sim)
+  repeat
+    :Seleciona próxima FixedExpense;
+    :Verifica idempotência (já lançada este mês?);
+    if (Já lançada?) then (Sim)
+      :Ignora — evita duplicidade;
+    else (Não)
+      :Cria FinancialTransaction (EXPENSE);
+      :Persiste no banco;
+    endif
+  repeat while (Há mais despesas?)
+  :Notifica Manager sobre despesas lançadas;
+else (Nenhuma despesa hoje)
+  :Nenhuma ação;
+endif
+stop
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <h2 class="subsecao">5.3 Diagramas de Máquina de Estados</h2>
+
+  <p>
+    Foram identificados dois elementos do sistema com ciclo de vida relevante para modelagem:
+    a <strong>Ordem de Serviço</strong> e o <strong>Agendamento</strong>. Ambos os diagramas
+    contemplam ações de entrada (<em>entry</em>), ações de saída (<em>exit</em>), condições de
+    guarda e eventos, conforme exigido pela notação UML.
+  </p>
+
+  <!-- DME-01 -->
+  <h3 class="subsubsecao">DME-01 — Ciclo de Vida da Ordem de Serviço</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 14 — DME-01: Estados da Ordem de Serviço</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DME01_EstadosOS
+[*] --> PENDING : criarOS() [cliente + veículo válidos]
+
+state PENDING {
+  entry: registrar createdAt = now()
+  exit:  validar mínimo 1 item na OS
+}
+PENDING --> WAITING_QUEUE : confirmarEntrada() [OS possui >= 1 item]
+PENDING --> CANCELED      : cancelar() [apenas MANAGER]
+
+state WAITING_QUEUE {
+  entry: notificar pátio sobre novo veículo
+  exit:  registrar posição na fila
+}
+WAITING_QUEUE --> IN_PROGRESS : iniciarAtendimento() [WASHER ou MANAGER]
+WAITING_QUEUE --> CANCELED    : cancelar() [apenas MANAGER]
+
+state IN_PROGRESS {
+  entry: startedAt = now()
+  exit:  finishedAt = now()
+}
+IN_PROGRESS --> READY    : concluirServico() [WASHER ou MANAGER]
+IN_PROGRESS --> CANCELED : cancelar() [apenas MANAGER]
+
+state READY {
+  entry: notificar cliente / RF09
+  exit:  validar método de pagamento
+}
+READY --> COMPLETED  : registrarPagamento(method) [pagamento confirmado]
+READY --> IN_PROGRESS : solicitarRetrabalho() [apenas MANAGER]
+
+state COMPLETED {
+  entry: completedAt = now()
+  entry: criarFinancialTransaction(INCOME)
+  entry: baixarEstoque(itens OUT)
+  entry: Customer.totalWashes++
+  entry: calcularComissaoFuncionario()
+}
+COMPLETED --> [*]
+CANCELED  --> [*]
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <!-- DME-02 -->
+  <h3 class="subsubsecao">DME-02 — Ciclo de Vida do Agendamento</h3>
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 15 — DME-02: Estados do Agendamento</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml DME02_EstadosAppointment
+[*] --> SCHEDULED : criarAgendamento() [horário disponível]
+
+state SCHEDULED {
+  entry: salvar data e hora
+  entry: enviar confirmação ao cliente (RF09)
+  exit:  verificar orderId == null (idempotência)
+}
+
+SCHEDULED --> COMPLETED : converterEmOS() [cliente compareceu]
+  note on link : / vincular orderId à OS criada
+SCHEDULED --> CANCELED  : cancelar() [Manager ou Cliente]
+SCHEDULED --> CANCELED  : naoComparecimento() [Manager registra ausência]
+
+state COMPLETED {
+  entry: orderId = novaOS.id
+  entry: liberar slot para nova marcação
+}
+
+state CANCELED {
+  entry: liberar slot de horário na agenda
+  entry: notificar cliente (RF09)
+}
+
+COMPLETED --> [*]
+CANCELED  --> [*]
+
+note right of SCHEDULED
+  Guarda de idempotência:
+  [orderId == null] → pode converter em OS
+  [orderId != null] → bloqueado (OS já existe)
+end note
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 6 — PROTÓTIPO
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">6 PROTÓTIPO E NAVEGAÇÃO DE TELAS</h1>
+
+  <p>
+    O WashControl foi desenvolvido como um protótipo de <strong>alta fidelidade funcional</strong>,
+    implementado em Next.js 15 com banco de dados real (PostgreSQL), autenticação e Server Actions.
+    Todas as telas são interativas e operacionais, superando o escopo de um protótipo estático.
+  </p>
+
+  <h2 class="subsecao">6.1 Diagrama de Navegação</h2>
+
+  <div class="diagrama-container">
+    <p class="sem-recuo diagrama-titulo">Figura 16 — Diagrama de navegação de telas</p>
+    <div class="diagrama-box">
+      <pre>
+@startuml NavegacaoTelas
+[*] --> Login
+
+Login --> Dashboard       : autenticação OK
+
+Dashboard --> OS          : Ordens de Serviço
+Dashboard --> Patio       : Pátio (Washer)
+Dashboard --> Clientes    : Clientes e Veículos
+Dashboard --> Agendamentos
+Dashboard --> Financeiro
+Dashboard --> Insumos
+Dashboard --> Equipe
+Dashboard --> Lavacarros  : Catálogo de Serviços
+Dashboard --> Configuracoes
+Dashboard --> Faturamento : (SuperAdmin)
+
+OS           --> Agendamentos : converter agendamento
+Agendamentos --> OS           : OS criada
+OS           --> Financeiro   : OS concluída → lança receita
+OS           --> Insumos      : OS concluída → baixa estoque
+@enduml</pre>
+    </div>
+    <p class="diagrama-nota">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <h2 class="subsecao">6.2 Telas Principais do Sistema</h2>
+
+  <div class="tabela-container no-break">
+    <p class="sem-recuo tabela-titulo">Quadro 3 — Telas do WashControl e seus objetivos</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:3.5cm">Tela / Rota</th>
+          <th>Descrição e Funcionalidades</th>
+          <th style="width:3cm">Ator Principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>/login</strong></td>
+          <td>Autenticação com e-mail e senha. Redireciona automaticamente para o dashboard conforme o papel do usuário (MANAGER → gestão completa; WASHER → pátio).</td>
+          <td>Todos os atores</td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard</strong></td>
+          <td>KPIs em tempo real: receita do dia, receita do mês, OSs em andamento e meta mensal. Gráfico comparativo de receitas × despesas. Lista de OSs recentes.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/os</strong></td>
+          <td>Board Kanban com cinco colunas de status. Drag-and-drop de cards. Modal de criação de OS e modal de conclusão com registro de pagamento.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/patio</strong></td>
+          <td>Visão simplificada e responsiva dos veículos em atendimento. Botões "Iniciar" e "Finalizado" acessíveis via celular no pátio.</td>
+          <td><span class="badge badge-wsh">Washer</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/clientes</strong></td>
+          <td>CRUD de clientes com veículos vinculados, histórico de lavagens e indicador do programa de fidelidade.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/agendamentos</strong></td>
+          <td>Calendário mensal de agendamentos, formulário de novo agendamento e botão de conversão em OS com verificação de idempotência.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/financeiro</strong></td>
+          <td>DRE mensal, fluxo de caixa, listagem de transações filtráveis e lançamento manual de despesas.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/insumos</strong></td>
+          <td>Catálogo de produtos com controle de estoque, alertas de estoque mínimo e histórico de movimentações.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/equipe</strong></td>
+          <td>Cadastro de funcionários, vinculação com usuário do sistema e relatório de comissões por OS concluída.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+        <tr>
+          <td><strong>/dashboard/configuracoes</strong></td>
+          <td>Dados do tenant, configuração do programa de fidelidade (loyaltyInterval e loyaltyDiscount) e plano SaaS atual.</td>
+          <td><span class="badge badge-mgr">Manager</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="tabela-fonte">Fonte: Elaborado pelo autor (2026).</p>
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 7 — CRIATIVIDADE
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">7 CRIATIVIDADE</h1>
+
+  <p>
+    Os itens abaixo foram identificados pela equipe como contribuições criativas — itens não
+    solicitados explicitamente pelo enunciado que tornam o trabalho superior em relação ao
+    mínimo esperado. O item de criatividade pode relacionar-se ao projeto (documento) e ao
+    produto que está sendo gerado.
+  </p>
+
+  <h2 class="subsecao">7.1 Criatividade no Projeto (Documento)</h2>
+
+  <div class="criatividade-item">
+    <strong>C01 — Protótipo de alta fidelidade funcional</strong>
+    Em vez de um protótipo estático no Figma, o WashControl foi desenvolvido como aplicação
+    funcional em Next.js 15 com banco de dados real (PostgreSQL), autenticação e Server Actions —
+    tornando o protótipo interativo, demonstrável e com dados reais de teste via seed.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C02 — Técnicas de Elicitação com rastreabilidade completa</strong>
+    Cada técnica utilizada (Entrevista, Observação, Questionário, Brainstorming, JAD) foi
+    documentada com stakeholder-alvo, roteiro aplicado, limitações encontradas e mapeamento
+    direto para os RFs/RNFs resultantes — indo além da simples listagem de técnicas exigida.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C03 — Diagrama de Objetos com cenário real e justificativa</strong>
+    O diagrama de objetos apresenta uma instância concreta de atendimento em andamento,
+    com valores reais e justificativa explícita das classes representadas e das omitidas —
+    evidenciando compreensão profunda da diferença entre diagrama de classes e diagrama de objetos.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C04 — Idempotência modelada como regra de negócio explícita</strong>
+    A restrição <code>Appointment.orderId @unique</code> foi especificada como regra de negócio
+    (RN-03) e representada em fluxos alternativos, fluxos de exceção e no diagrama de estados
+    do Agendamento — demonstrando maturidade na modelagem de restrições de integridade.
+  </div>
+
+  <h2 class="subsecao">7.2 Criatividade no Produto</h2>
+
+  <div class="criatividade-item">
+    <strong>C05 — Arquitetura multi-tenant com isolamento estrutural por tenantId</strong>
+    O isolamento de dados entre estabelecimentos é garantido em nível de banco de dados:
+    o campo <code>tenantId</code> é obrigatório em todas as tabelas, com índice composto para
+    eficiência — não é um isolamento lógico por aplicação, mas arquitetural e auditável.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C06 — Automações em cascata ao concluir OS (5 ações em transação única)</strong>
+    Ao marcar uma OS como COMPLETED, cinco ações são executadas atomicamente: (1) receita
+    financeira, (2) baixa de estoque por insumo, (3) contagem de fidelidade, (4) verificação
+    de desconto e (5) cálculo de comissão do funcionário — modelado e implementado.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C07 — Programa de fidelidade parametrizável por tenant</strong>
+    Cada lava-car configura seu próprio programa de fidelidade via <code>loyaltyInterval</code>
+    (a cada N lavagens) e <code>loyaltyDiscount</code> (X% de desconto) no modelo Tenant —
+    um diferencial competitivo que vai além dos requisitos documentados.
+  </div>
+
+  <div class="criatividade-item">
+    <strong>C08 — Módulo de faturamento SaaS B2B para o Super Admin</strong>
+    Além do sistema para o lava-car, existe um módulo de faturamento onde o Super Admin gerencia
+    planos (BASIC, PRO, ENTERPRISE), valores de assinatura e datas de vencimento dos tenants —
+    tornando o WashControl um produto SaaS completo, não apenas um sistema de gestão isolado.
+  </div>
+
+  <hr class="secao-line" />
+
+  <!-- ╔══════════════════════════════════════
+       SEÇÃO 8 — RESPONSABILIDADES
+  ══════════════════════════════════════╗ -->
+  <h1 class="secao">8 RESPONSABILIDADES</h1>
+
+  <p>
+    Todos os integrantes da equipe devem assinar e datar o documento de Análise e Projeto
+    do Sistema Computacional, declarando ciência e responsabilidade pelo conteúdo apresentado.
+  </p>
+
+  <div class="tabela-container no-break" style="margin-top: 1cm;">
+    <table>
+      <thead>
+        <tr>
+          <th>Integrante</th>
+          <th style="width:3cm">RA / Matrícula</th>
+          <th style="width:6cm">Assinatura</th>
+          <th style="width:3cm">Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 0.5cm 0.3cm;">Leonardo dos Santos Marques</td>
+          <td></td>
+          <td style="padding: 0.5cm 0.3cm; border-bottom: 1px solid #333;">
+            &nbsp;
+          </td>
+          <td style="padding: 0.5cm 0.3cm;">17/04/2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <br /><br /><br />
+
+  <p class="sem-recuo" style="text-align:center; font-size: 10pt; color: #666; margin-top: 2cm;">
+    Documento elaborado para a disciplina de <strong>Modelagem de Sistemas Computacionais</strong> — BCC/PUCPR<br>
+    Professora: Patricia Rucker de Bassi &nbsp;|&nbsp; Semestre: 2026-1<br>
+    Sistema: <strong>WashControl</strong> — SaaS de Gestão para Lava-Cars
+  </p>
+
+</div><!-- /conteudo -->
+
+</body>
+</html>

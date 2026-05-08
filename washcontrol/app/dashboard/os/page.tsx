@@ -94,25 +94,24 @@ export default async function OSPage({
     })),
   }));
 
-  // For the "New OS" modal we need customers + vehicles
-  const customers = await prisma.customer.findMany({
-    where: { tenantId },
-    select: { id: true, name: true, phone: true },
-    orderBy: { name: "asc" },
-  });
-
-  const vehicles = await prisma.vehicle.findMany({
-    where: { tenantId },
-    select: {
-      id: true,
-      plate: true,
-      brand: true,
-      model: true,
-      customerId: true,
-      type: true,
-    },
-    orderBy: { plate: "asc" },
-  });
+  // For the "New OS" modal we need customers, vehicles and product catalog
+  const [customers, vehicles, products] = await Promise.all([
+    prisma.customer.findMany({
+      where: { tenantId },
+      select: { id: true, name: true, phone: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.vehicle.findMany({
+      where: { tenantId },
+      select: { id: true, plate: true, brand: true, model: true, customerId: true, type: true },
+      orderBy: { plate: "asc" },
+    }),
+    prisma.product.findMany({
+      where: { tenantId },
+      select: { id: true, name: true, price: true, isService: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <ClientOS
@@ -124,6 +123,7 @@ export default async function OSPage({
       currentSearch={search}
       customers={customers}
       vehicles={vehicles}
+      catalog={products}
       role={session.user.role}
     />
   );

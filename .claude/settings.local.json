@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls washcontrol/.env*)",
+      "Bash(npx tsx:*)",
+      "Bash(node -e \"console.log\\(typeof globalThis.WebSocket\\)\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\({path:'.env'}\\); console.log\\(JSON.stringify\\(process.env.DATABASE_URL\\)\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_TDlY3dfWrC2K@ep-little-shape-ac1hssmn-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require\" npx tsx prisma/seed.ts)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@prisma/adapter-neon/package.json'\\).version, require\\('./node_modules/@neondatabase/serverless/package.json'\\).version\\)\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/@prisma/adapter-neon'\\); console.log\\(Object.keys\\(pkg\\)\\)\")",
+      "Bash(node -e \"const {PrismaNeonHttp} = require\\('./node_modules/@prisma/adapter-neon'\\); console.log\\(PrismaNeonHttp.length, PrismaNeonHttp.toString\\(\\).substring\\(0,200\\)\\)\")",
+      "Bash(node -e \"const {PrismaNeonHttp} = require\\('./node_modules/@prisma/adapter-neon'\\); console.log\\(PrismaNeonHttp.toString\\(\\).substring\\(0,500\\)\\)\")",
+      "Bash(node -e \"const {PrismaNeon} = require\\('./node_modules/@prisma/adapter-neon'\\); console.log\\(PrismaNeon.toString\\(\\).substring\\(0,400\\)\\)\")"
     ]
   }
 }

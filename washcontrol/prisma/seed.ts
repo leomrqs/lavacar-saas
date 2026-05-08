@@ -3,11 +3,11 @@ config({ path: '.env' });
 
 import { PrismaClient, UserRole, OrderStatus, VehicleType } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool, neonConfig } from '@neondatabase/serverless';
+import { neonConfig } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 
-// Necessário para o Node.js usar a conexão nativa do Neon via WebSocket
-neonConfig.webSocketConstructor = global.WebSocket;
+// Em ESM (tsx), usar globalThis em vez de global
+neonConfig.webSocketConstructor = globalThis.WebSocket;
 
 // ============================================================================
 // MOTORES DE DADOS E INTELIGÊNCIA ARTIFICIAL DO SEED
@@ -52,10 +52,8 @@ async function main() {
   const dbUrl = process.env.DATABASE_URL?.trim();
   if (!dbUrl) throw new Error("❌ ERRO: DATABASE_URL não foi encontrada. Verifique o .env");
 
-  // AQUI ESTÁ A CORREÇÃO: Passando o Adapter obrigatório
   console.log('🔗 Configurando conexão serverless com o Neon...');
-  const neonPool = new Pool({ connectionString: dbUrl });
-  const adapter = new PrismaNeon(neonPool);
+  const adapter = new PrismaNeon({ connectionString: dbUrl });
   const prisma = new PrismaClient({ adapter });
 
   console.log('🚀 INICIANDO A SUPER SEMEADURA WASHCONTROL (1 ANO DE DADOS)...');
@@ -268,7 +266,7 @@ async function main() {
         notes: fidelityNotes || getRandomItem(notasCliente),
         createdAt: osDate, updatedAt: osDate,
         items: {
-          create: items.map(it => ({ ...it, tenantId, orderId: undefined }))
+          create: items.map(it => ({ ...it }))
         }
       }
     });
@@ -348,7 +346,7 @@ async function main() {
         createdAt: d, updatedAt: d,
         items: {
           create: [
-            { tenantId, name: isVip ? 'Vitrificação de Pintura' : 'Lavagem Completa (Cera)', isService: true, quantity: 1, unitPrice: isVip ? 400 : 80 }
+            { name: isVip ? 'Vitrificação de Pintura' : 'Lavagem Completa (Cera)', isService: true, quantity: 1, unitPrice: isVip ? 400 : 80 }
           ]
         }
       }

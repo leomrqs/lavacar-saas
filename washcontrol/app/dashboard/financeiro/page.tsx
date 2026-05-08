@@ -2,10 +2,21 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
+import { subMonths, format } from "date-fns";
 import { ClientFinanceiro } from "./ClientFinanceiro";
+import {
+  getCycleDates,
+  getCurrentCycleMonth,
+  parseMonthParam,
+  toMonthParam,
+  shiftMonth,
+} from "@/lib/cycle";
 
-export default async function FinanceiroPage() {
+export default async function FinanceiroPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
   if (session.user.role === "WASHER") redirect("/dashboard/patio");
@@ -13,47 +24,65 @@ export default async function FinanceiroPage() {
   const tenantId = session.user.tenantId;
   if (!tenantId) redirect("/login");
 
+  // Busca configurações do tenant (inclusive o dia de início do ciclo)
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: { billingCycleDay: true, monthlyGoal: true },
+  });
+
+  const cycleDay = tenant?.billingCycleDay ?? 1;
   const today = new Date();
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(today);
+
+  // Determina o mês do ciclo atual (baseado no cycleDay)
+  const currentCycle = getCurrentCycleMonth(today, cycleDay);
+
+  // Lê o parâmetro ?month=YYYY-MM da URL
+  const params = await searchParams;
+  const selected = parseMonthParam(params.month, currentCycle.year, currentCycle.month);
+  const { cycleStart, cycleEnd, year, month } = getCycleDates(
+    selected.year,
+    selected.month,
+    cycleDay
+  );
+
+  // Gera os últimos 6 meses de ciclo para o gráfico sparkline
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const shifted = shiftMonth(selected.year, selected.month, i - 5);
+    const cycle = getCycleDates(shifted.year, shifted.month, cycleDay);
+    return { ...cycle, label: format(cycle.cycleStart, "MMM/yy") };
+  });
 
   const [transactions, fixedExpenses, monthlySummaryRaw] = await Promise.all([
     prisma.financialTransaction.findMany({
       where: {
         tenantId,
         OR: [
-          { paymentDate: { gte: monthStart, lte: monthEnd } },
-          {
-            paymentDate: null,
-            createdAt: { gte: monthStart, lte: monthEnd },
-          },
+          { paymentDate: { gte: cycleStart, lte: cycleEnd } },
+          { paymentDate: null, createdAt: { gte: cycleStart, lte: cycleEnd } },
         ],
       },
       orderBy: { createdAt: "desc" },
     }),
     prisma.fixedExpense.findMany({
       where: { tenantId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { dueDay: "asc" },
     }),
-    // Last 6 months summary for sparkline
     Promise.all(
-      Array.from({ length: 6 }, (_, i) => {
-        const d = subMonths(today, 5 - i);
-        const start = startOfMonth(d);
-        const end = endOfMonth(d);
-        return prisma.financialTransaction.aggregate({
+      last6Months.map(async (m6) => {
+        const agg = await prisma.financialTransaction.aggregate({
           where: {
             tenantId,
             type: "INCOME",
             status: "PAID",
-            paymentDate: { gte: start, lte: end },
+            paymentDate: { gte: m6.cycleStart, lte: m6.cycleEnd },
           },
           _sum: { amount: true },
-        }).then((agg) => ({
-          month: format(d, "MMM", { locale: undefined }),
-          monthKey: format(d, "yyyy-MM"),
+        });
+        return {
+          month: m6.label,
+          monthKey: toMonthParam(m6.year, m6.month),
           total: agg._sum.amount ?? 0,
-        }));
+        };
       })
     ),
   ]);
@@ -67,6 +96,16 @@ export default async function FinanceiroPage() {
     .reduce((acc, t) => acc + t.amount, 0);
 
   const saldo = totalEntradas - totalSaidas;
+
+  // Calcula quais despesas fixas NÃO foram lançadas neste ciclo
+  const launchedNames = new Set(
+    transactions
+      .filter((t) => t.type === "EXPENSE" && t.category === "DESPESA_FIXA")
+      .map((t) => t.description.trim().toLowerCase())
+  );
+  const pendingFixedExpenses = fixedExpenses
+    .filter((fe) => fe.isActive && !launchedNames.has(fe.name.trim().toLowerCase()))
+    .map((fe) => fe.name);
 
   return (
     <ClientFinanceiro
@@ -96,8 +135,14 @@ export default async function FinanceiroPage() {
       totalSaidas={totalSaidas}
       saldo={saldo}
       monthlySummary={monthlySummaryRaw}
-      currentMonth={today.getMonth() + 1}
-      currentYear={today.getFullYear()}
+      currentMonth={month}
+      currentYear={year}
+      cycleDay={cycleDay}
+      cycleStart={cycleStart.toISOString()}
+      cycleEnd={cycleEnd.toISOString()}
+      currentMonthParam={toMonthParam(currentCycle.year, currentCycle.month)}
+      selectedMonthParam={toMonthParam(selected.year, selected.month)}
+      pendingFixedExpenseNames={pendingFixedExpenses}
     />
   );
 }
