@@ -368,8 +368,109 @@ async function main() {
   await createKanbanCard('READY', 4);
   await createKanbanCard('READY', 2);
 
+  // ============================================================================
+  // 9. AGENDAMENTOS (PÁGINA DE AGENDAMENTOS)
+  // ============================================================================
+  console.log('📅 [9/9] Criando Agendamentos para a semana atual...');
+
+  const TODAY = new Date('2026-05-08T08:00:00Z');
+  const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000);
+
+  // Agendamentos do passado (concluídos e cancelados)
+  const pastAppointments = [
+    { daysOffset: -7, hour: '09:00', status: 'COMPLETED', notes: 'Cliente recorrente, lavagem completa.' },
+    { daysOffset: -5, hour: '10:30', status: 'COMPLETED', notes: 'Polimento nos faróis.' },
+    { daysOffset: -3, hour: '14:00', status: 'CANCELED', notes: 'Cliente desmarcou no dia.' },
+    { daysOffset: -2, hour: '08:00', status: 'COMPLETED', notes: 'Higienização interna completa.' },
+    { daysOffset: -1, hour: '11:00', status: 'COMPLETED', notes: 'Lavagem simples.' },
+    { daysOffset: -1, hour: '16:00', status: 'CANCELED', notes: 'Não compareceu.' },
+  ];
+
+  for (const apt of pastAppointments) {
+    const cust = getRandomItem(dbCustomers);
+    const veh = getRandomItem(cust.vehicles);
+    const [h, m] = apt.hour.split(':').map(Number);
+    const date = addDays(TODAY, apt.daysOffset);
+    date.setUTCHours(h, m, 0, 0);
+
+    await prisma.appointment.create({
+      data: {
+        tenantId,
+        customerId: cust.id,
+        vehicleId: veh.id,
+        date,
+        status: apt.status,
+        notes: apt.notes,
+        createdAt: addDays(date, -2),
+      }
+    });
+  }
+
+  // Agendamentos de HOJE
+  const todaySlots = [
+    { hour: '08:00', notes: 'Lavagem Simples — urgente antes do trabalho.', serviceIdx: 0 },
+    { hour: '09:30', notes: 'Lavagem Completa com Cera.', serviceIdx: 1 },
+    { hour: '11:00', notes: 'Polimento Comercial + Higienização.', serviceIdx: 5 },
+    { hour: '14:00', notes: 'SUV grande, combinou Lavagem Caminhonete.', serviceIdx: 3 },
+    { hour: '16:30', notes: 'Cliente Vip — Vitrificação de Pintura.', serviceIdx: 6 },
+  ];
+
+  for (const slot of todaySlots) {
+    const cust = getRandomItem(dbCustomers);
+    const veh = getRandomItem(cust.vehicles);
+    const [h, m] = slot.hour.split(':').map(Number);
+    const date = new Date(TODAY);
+    date.setUTCHours(h, m, 0, 0);
+
+    await prisma.appointment.create({
+      data: {
+        tenantId,
+        customerId: cust.id,
+        vehicleId: veh.id,
+        serviceId: dbServices[slot.serviceIdx]?.id ?? dbServices[0].id,
+        date,
+        status: 'SCHEDULED',
+        notes: slot.notes,
+        createdAt: addDays(date, -1),
+      }
+    });
+  }
+
+  // Agendamentos dos próximos dias
+  const futureSlots = [
+    { daysOffset: 1, hour: '09:00', notes: 'Amanhã cedo — lavagem rápida.', serviceIdx: 0 },
+    { daysOffset: 1, hour: '13:00', notes: 'Higienização completa.', serviceIdx: 4 },
+    { daysOffset: 2, hour: '10:00', notes: 'Polimento agendado com antecedência.', serviceIdx: 5 },
+    { daysOffset: 2, hour: '15:00', notes: 'Cliente novo indicado pela vizinhança.', serviceIdx: 1 },
+    { daysOffset: 3, hour: '08:30', notes: 'Lavagem Completa.', serviceIdx: 1 },
+    { daysOffset: 4, hour: '09:00', notes: 'Vitrificação — confirmar com cliente.', serviceIdx: 6 },
+    { daysOffset: 5, hour: '11:00', notes: 'Lavagem de moto.', serviceIdx: 2 },
+    { daysOffset: 7, hour: '14:00', notes: 'Agendamento programado semana que vem.', serviceIdx: 3 },
+  ];
+
+  for (const slot of futureSlots) {
+    const cust = getRandomItem(dbCustomers);
+    const veh = getRandomItem(cust.vehicles);
+    const [h, m] = slot.hour.split(':').map(Number);
+    const date = addDays(TODAY, slot.daysOffset);
+    date.setUTCHours(h, m, 0, 0);
+
+    await prisma.appointment.create({
+      data: {
+        tenantId,
+        customerId: cust.id,
+        vehicleId: veh.id,
+        serviceId: dbServices[slot.serviceIdx]?.id ?? dbServices[0].id,
+        date,
+        status: 'SCHEDULED',
+        notes: slot.notes,
+        createdAt: TODAY,
+      }
+    });
+  }
+
   console.log('✅ =========================================================');
-  console.log(`✅ MEGA SEMEADURA CONCLUÍDA! (KANBAN E DRE PRONTOS)`);
+  console.log(`✅ MEGA SEMEADURA CONCLUÍDA! (KANBAN, DRE E AGENDAMENTOS PRONTOS)`);
   console.log(`📊 Mais de R$ ${incomeAcumulado.toLocaleString('pt-BR')} em faturamento simulado na história do Lava-jato.`);
   console.log('✅ =========================================================');
   console.log('🔑 Logins para o Sistema (Senha comum: 123456):');
